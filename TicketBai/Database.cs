@@ -5,16 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace TicketBai
 {
     class Database
     {
+
+        private MySqlConnection conn;
         private bool konektatuta = false;
 
         // ===== DB KONEKTATU =====
         public void Konektatu()
         {
-            string connString = "server=localhost;user=root;password=pass;database=ticketbai;";
+            string connString = "server=localhost;user=root;password=root;database=TicketBaiDB;";
             conn = new MySqlConnection(connString);
 
             try
@@ -22,7 +25,7 @@ namespace TicketBai
                 // Hemen MySQL konektatzeko logika jarri daiteke
                 // adibidez: MySqlConnection conn = new MySqlConnection(connString);
                 // conn.Open();
-                connString.Open();
+                conn.Open();
                 konektatuta = true;
                 Console.WriteLine("DB konektatuta.");
             }

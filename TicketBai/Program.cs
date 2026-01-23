@@ -54,44 +54,66 @@ namespace TicketBai
         {
             Console.WriteLine("Ticketak prozesatzen...");
 
-            // 1-2. TXT irakurri eta Ticket objektuak sortu
-            List<string> lerroak = File.ReadAllLines("ticketak.txt").ToList();
-            List<Ticket> ticketak = TicketFactory.SortuTicketak(lerroak);
+            string karpetaNagusia = "Baskulak";
 
-            foreach (Ticket t in ticketak)
+            if (!Directory.Exists(karpetaNagusia))
             {
-                // 3. Saltzailea aldatu (beharrezkoa bada)
-                if (t.Saltzailea.Izena == "EZEZAGUNA")
+                Console.WriteLine("Sarrera karpeta ez da existitzen.");
+                return;
+            }
+
+            // 1️⃣ Baskula-karpetak
+            string[] baskulak = Directory.GetDirectories(karpetaNagusia);
+
+            foreach (string baskulaPath in baskulak)
+            {
+                string baskulaIzena = Path.GetFileName(baskulaPath);
+                Console.WriteLine($"→ Baskula: {baskulaIzena}");
+
+                // 2️⃣ TXT fitxategiak baskula bakoitzean
+                string[] txtFitxategiak = Directory.GetFiles(baskulaPath, "*.txt");
+
+                foreach (string txtPath in txtFitxategiak)
                 {
-                    t.Saltzailea = new Saltzailea(0, "SISTEMA");
+                    List<string> lerroak = File.ReadAllLines(txtPath).ToList();
+
+                    // 3️⃣ Ticket objektuak sortu (baskula pasatuta)
+                    List<Ticket> ticketak = TicketFactory.SortuTicketak(lerroak, baskulaIzena);
+
+                    foreach (Ticket t in ticketak)
+                    {
+                        // 4️⃣ Saltzailea aldatu beharrezkoa bada
+                        if (t.Saltzailea.Izena == "EZEZAGUNA")
+                        {
+                            t.Saltzailea = new Saltzailea(0, "SISTEMA");
+                        }
+
+                        // 5️⃣ XML sortu
+                        string xmlPath = XmlGenerator.Sortu(t);
+
+                        // 6️⃣ XML balidatu
+                        if (!XmlValidator.Balidatu(xmlPath))
+                        {
+                            Console.WriteLine($"XML baliogabea: {t.Id}");
+                            continue;
+                        }
+
+                        // 7️⃣ Email bidali
+                        EmailSender.Bidali(xmlPath);
+
+                        // 8️⃣ Excel log
+                        ExcelLogger.Erregistratu(t.Id, DateTime.Now);
+
+                        // 9️⃣ DB-an gorde
+                        Database db = new Database();
+                        db.Konektatu();
+                        db.GordeTicket(t);
+                        db.Itxi();
+
+                        // 🔟 Backup
+                        BackupManager.Egin(xmlPath);
+                    }
                 }
-
-                // 4. XML sortu
-                string xmlPath = XmlGenerator.Sortu(t);
-
-                // 5. XML balidatu
-                if (!XmlValidator.Balidatu(xmlPath))
-                {
-                    Console.WriteLine($"XML baliogabea: {t.Id}");
-                    continue;
-                }
-
-                // 6. Ogasunera bidali (email)
-                EmailSender.Bidali(xmlPath);
-
-                // 7. Bidalketa erregistratu Excel-ean
-                ExcelLogger.Erregistratu(t.Id, DateTime.Now);
-
-                // 8. MySQL-era konektatu
-                Database db = new Database();
-                db.Konektatu();
-
-                // 9. DB-an gorde
-                db.GordeTicket(t);
-                db.Itxi();
-
-                // 10. Backup egin
-                BackupManager.Egin(xmlPath);
             }
 
             Console.WriteLine("Prozesua amaituta.\n");

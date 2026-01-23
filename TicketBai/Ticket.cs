@@ -9,6 +9,7 @@ namespace TicketBai
     class Ticket
     {
         // ===== PROPIETATEAK =====
+        public string Baskula { get; set; }        // Baskula zenbakia
         public string Id { get; set; }               // Ticket ID edo kodea
         public DateTime Data { get; set; }           // Data eta ordua
         public Saltzailea Saltzailea { get; set; }   // Saltzailea

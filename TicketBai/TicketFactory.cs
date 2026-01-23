@@ -5,7 +5,7 @@ using TicketBai;
 
 static class TicketFactory
 {
-    public static List<Ticket> SortuTicketak(List<string> lerroak)
+    public static List<Ticket> SortuTicketak(List<string> lerroak, string baskula)
     {
         List<Ticket> ticketak = new List<Ticket>();
 
@@ -27,7 +27,7 @@ static class TicketFactory
             Saltzailea s = new Saltzailea(0, saltzaileaIzena);
 
             Ticket t = new Ticket(id, data, s);
-
+            t.Baskula=baskula;
             // Produktuak gehitu
             string produktuakStr = zatitu[3]; // "Esnea:1.5,Ogia:1.2"
             string[] produktuakArray = produktuakStr.Split(',');
