@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TicketBai
 {
-    public class TXT
+    internal class TicketController
     {
     }
 }
