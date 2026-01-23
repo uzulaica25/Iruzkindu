@@ -54,7 +54,7 @@ namespace TicketBai
         {
             Console.WriteLine("Ticketak prozesatzen...");
 
-            string karpetaNagusia = "Baskulak";
+            string karpetaNagusia = @"C:\TicketBAI\Baskulak";
 
             if (!Directory.Exists(karpetaNagusia))
             {
