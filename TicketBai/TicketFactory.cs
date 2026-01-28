@@ -5,53 +5,61 @@ using TicketBai;
 
 static class TicketFactory
 {
-    public static List<Ticket> SortuTicketak(List<string> lerroak, string baskula)
+    public static List<Ticket> SortuTicketak(List<string> lerroak, string baskula, string txtPath)
     {
         List<Ticket> ticketak = new List<Ticket>();
+
+        
+        string fileName = Path.GetFileNameWithoutExtension(txtPath);
+        DateTime fechaTicket = DateTime.Now; 
+        string[] partes = fileName.Split('_');
+        if (partes.Length >= 2)
+        {
+            if (!DateTime.TryParse(partes[1], out fechaTicket))
+            {
+                Console.WriteLine("Fecha inválida en nombre del archivo: " + partes[1]);
+                fechaTicket = DateTime.Now;
+            }
+        }
 
         foreach (string lerroa in lerroak)
         {
             if (string.IsNullOrWhiteSpace(lerroa))
-                continue; // hutsik dagoen lerroa saltatu
+                continue;
 
-            // Adibidez, lerro formatua:
-            // ID;Data;SaltzaileIzena;Produktu1:Prezioa1,Produkt2:Prezioa2
-            // T001;2026-01-22;Ane;Esnea:1.5,Ogia:1.2
-            string[] zatitu = lerroa.Split(';');
-            if (zatitu.Length < 4)
-                continue; // formatu okerra
+            string[] zatitu = lerroa.Split('$'); 
 
-            string id = zatitu[0];
-            DateTime data = DateTime.Parse(zatitu[1]);
-            string saltzaileaIzena = zatitu[2];
-            Saltzailea s = new Saltzailea(0, saltzaileaIzena);
-
-            Ticket t = new Ticket(id, data, s);
-            t.Baskula=baskula;
-            // Produktuak gehitu
-            string produktuakStr = zatitu[3]; // "Esnea:1.5,Ogia:1.2"
-            string[] produktuakArray = produktuakStr.Split(',');
-
-            foreach (string pStr in produktuakArray)
+            if (zatitu.Length < 5)
             {
-                if (string.IsNullOrWhiteSpace(pStr))
-                    continue;
-
-                string[] pZatiak = pStr.Split(':');
-                if (pZatiak.Length != 2)
-                    continue;
-
-                string izena = pZatiak[0];
-                if (!decimal.TryParse(pZatiak[1], out decimal prezioa))
-                    prezioa = 0;
-
-                t.GehituProduktua(izena, prezioa);
+                Console.WriteLine("Formato incorrecto: " + lerroa);
+                continue;
             }
 
+            
+            string produktuaIzena = zatitu[0];       
+            string saltzaileaIzena = zatitu[1];     
+
+            if (!int.TryParse(zatitu[2], out int PrezioaKg))
+                PrezioaKg = 0;
+            if (!decimal.TryParse(zatitu[3], out decimal Pisua))
+                Pisua = 0;
+            if (!decimal.TryParse(zatitu[4], out decimal Prezioa))
+                Prezioa = 0;
+
+            Saltzailea s = new Saltzailea(0, saltzaileaIzena);
+
+           
+            Ticket t = new Ticket(Prezioa.ToString(), fechaTicket, s);
+            t.Baskula = baskula;
+
+            
+            t.GehituProduktua(produktuaIzena,PrezioaKg, Prezioa, Pisua);
+
             ticketak.Add(t);
+            Console.WriteLine($"Ticket creado: {t.Id} - {saltzaileaIzena} - {fechaTicket.ToShortDateString()}");
         }
 
+        Console.WriteLine("Tickets totales creados: " + ticketak.Count);
         return ticketak;
     }
 }
-    

@@ -27,9 +27,9 @@ namespace TicketBai
         // ===== METODOAK =====
 
         // Produktuak gehitzeko
-        public void GehituProduktua(string izena, decimal prezioa)
+        public void GehituProduktua(string izena,decimal prezioaKg, decimal prezioa, decimal pisua )
         {
-            Produktuak.Add(new Produktua(izena, prezioa));
+            Produktuak.Add(new Produktua(izena,prezioaKg, prezioa, pisua));
         }
 
         // Guztizkoa kalkulatu
@@ -47,12 +47,16 @@ namespace TicketBai
     class Produktua
     {
         public string Izena { get; set; }
+        public decimal PrezioaKg { get; set; }
         public decimal Prezioa { get; set; }
+        public decimal Pisua { get; set; }
 
-        public Produktua(string izena, decimal prezioa)
+        public Produktua(string izena,decimal prezioaKg, decimal prezioa, decimal pisua)
         {
             Izena = izena;
+            PrezioaKg = prezioaKg;
             Prezioa = prezioa;
+            Pisua = pisua;
         }
     }
 }

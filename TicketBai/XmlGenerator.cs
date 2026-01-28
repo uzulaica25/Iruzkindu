@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Xml;
+using System.Xml.Schema;
 using TicketBai;
 namespace TicketBai
 {
@@ -7,8 +9,11 @@ namespace TicketBai
     {
         public static string Sortu(Ticket t)
         {
-            // Fitxategiaren izena definitu
-            string xmlPath = $"{t.Id}.xml";
+            string karpeta = @"C:\TicketBAI\XML";
+            Directory.CreateDirectory(karpeta); //
+            string xmlPath = Path.Combine(karpeta, $"{t.Id}.xml");
+
+
 
             try
             {
@@ -17,13 +22,17 @@ namespace TicketBai
                     sw.WriteLine($"<Ticket id='{t.Id}'>");
                     sw.WriteLine($"  <Data>{t.Data}</Data>");
                     sw.WriteLine($"  <Saltzailea>{t.Saltzailea.Izena}</Saltzailea>");
-                    sw.WriteLine($"  <Guztira>{t.KalkulatuTotala()}</Guztira>");
-                    sw.WriteLine("  <Produktuak>");
-                    foreach (var p in t.Produktuak)
+                  
+                    if (t.Produktuak.Count > 0)
                     {
-                        sw.WriteLine($"    <Produktua izena='{p.Izena}' prezioa='{p.Prezioa}' />");
+                        var p = t.Produktuak[0];
+                        sw.WriteLine("  <Produktua>");
+                        sw.WriteLine($"    <Izena>{p.Izena}</Izena>");
+                        sw.WriteLine($"    <PrezioKg>{p.PrezioaKg}</PrezioKg>");
+                        sw.WriteLine($"    <Pisua>{p.Pisua}</Pisua>");
+                        sw.WriteLine($"    <Prezioa>{p.Prezioa}</Prezioa>");
+                        sw.WriteLine("  </Produktua>");
                     }
-                    sw.WriteLine("  </Produktuak>");
                     sw.WriteLine("</Ticket>");
                 }
 
@@ -39,41 +48,37 @@ namespace TicketBai
     }
     static class XmlValidator
     {
-        public static bool Balidatu(string xmlPath)
+        public static bool Balidatu(string xmlPath, string xsdPath)
         {
+            bool baliogarria = true;
+
+            XmlSchemaSet schemas = new XmlSchemaSet();
+            schemas.Add("", xsdPath); 
+
+            XmlReaderSettings settings = new XmlReaderSettings();
+            settings.Schemas = schemas;
+            settings.ValidationType = ValidationType.Schema;
+
+            settings.ValidationEventHandler += (sender, e) =>
+            {
+                baliogarria = false;
+                Console.WriteLine($"Errorea XSD egiaztapenean: {e.Message}");
+            };
+
             try
             {
-                // Fitxategia existitzen dela egiaztatu
-                if (!File.Exists(xmlPath))
+                using (XmlReader reader = XmlReader.Create(xmlPath, settings))
                 {
-                    Console.WriteLine($"XML fitxategia ez da aurkitu: {xmlPath}");
-                    return false;
+                    while (reader.Read()) { } 
                 }
-
-                // Fitxategi hutsik ez dagoela egiaztatu
-                string content = File.ReadAllText(xmlPath).Trim();
-                if (string.IsNullOrEmpty(content))
-                {
-                    Console.WriteLine($"XML fitxategia hutsik dago: {xmlPath}");
-                    return false;
-                }
-
-                // Simple check: <Ticket> tag-a badago
-                if (!content.Contains("<Ticket") || !content.Contains("</Ticket>"))
-                {
-                    Console.WriteLine($"XML baliogabea: <Ticket> tag-a falta da: {xmlPath}");
-                    return false;
-                }
-
-                // Balidazioa pasatu
-                return true;
             }
-            catch (Exception ex)
+            catch (XmlException ex)
             {
-                Console.WriteLine($"Errorea XML balidazioan: {ex.Message}");
+                Console.WriteLine($"XML akatsa: {ex.Message}");
                 return false;
             }
+
+            return baliogarria;
         }
     }
 }
-
