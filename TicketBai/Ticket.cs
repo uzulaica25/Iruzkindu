@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mysqlx.Crud;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,15 +12,18 @@ namespace TicketBai
         // ===== PROPIETATEAK =====
         public string Baskula { get; set; }        // Baskula zenbakia
         public string Id { get; set; }               // Ticket ID edo kodea
-        public DateTime Data { get; set; }           // Data eta ordua
+        public string Eguna { get; set; }    // Adib: "2023-10-25"
+        public string Ordua { get; set; }    // Adib: "15:30:00"         // Data eta ordua
         public Saltzailea Saltzailea { get; set; }   // Saltzailea
         public List<Produktua> Produktuak { get; set; }  // Produktuen zerrenda
 
         // ===== KONSTRUKTOREA =====
-        public Ticket(string id, DateTime data, Saltzailea saltzailea)
+        public Ticket(string id, DateTime dataOsoa, Saltzailea saltzailea)
         {
             Id = id;
-            Data = data;
+     
+            Eguna = dataOsoa.ToString("yyyy-MM-dd"); // Urtea-Hilabetea-Eguna
+            Ordua = dataOsoa.ToString("HH:mm:ss");
             Saltzailea = saltzailea;
             Produktuak = new List<Produktua>();
         }
@@ -46,6 +50,7 @@ namespace TicketBai
     // ===== Produktua klasea =====
     class Produktua
     {
+
         public string Izena { get; set; }
         public decimal PrezioaKg { get; set; }
         public decimal Prezioa { get; set; }
@@ -53,6 +58,7 @@ namespace TicketBai
 
         public Produktua(string izena,decimal prezioaKg, decimal prezioa, decimal pisua)
         {
+            
             Izena = izena;
             PrezioaKg = prezioaKg;
             Prezioa = prezioa;

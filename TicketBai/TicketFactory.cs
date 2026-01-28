@@ -36,8 +36,26 @@ static class TicketFactory
             }
 
             
-            string produktuaIzena = zatitu[0];       
-            string saltzaileaIzena = zatitu[1];     
+            string produktuaIzena = zatitu[0];
+            string saltzaileaId = zatitu[1].Trim();
+
+            string saltzaileaIzena;
+            switch (saltzaileaId)
+            {
+                case "001": saltzaileaIzena = "Lander"; break;
+                case "002": saltzaileaIzena = "Ander"; break;
+                case "003": saltzaileaIzena = "Mateo"; break;
+                case "004": saltzaileaIzena = "Unai"; break;
+                case "005": saltzaileaIzena = "Eber"; break;
+                case "006": saltzaileaIzena = "Igor"; break;
+                case "007": saltzaileaIzena = "Mario"; break;
+                default: saltzaileaIzena = "Autosalmenta"; break;
+            }
+            if (!int.TryParse(saltzaileaId, out int idZenbakia))
+                idZenbakia = 0;
+
+            
+            Saltzailea s = new Saltzailea(idZenbakia, saltzaileaIzena);
 
             if (!int.TryParse(zatitu[2], out int PrezioaKg))
                 PrezioaKg = 0;
@@ -46,10 +64,10 @@ static class TicketFactory
             if (!decimal.TryParse(zatitu[4], out decimal Prezioa))
                 Prezioa = 0;
 
-            Saltzailea s = new Saltzailea(0, saltzaileaIzena);
+           
 
            
-            Ticket t = new Ticket(Prezioa.ToString(), fechaTicket, s);
+            Ticket t = new Ticket(produktuaIzena, fechaTicket, s);
             t.Baskula = baskula;
 
             

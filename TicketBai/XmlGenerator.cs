@@ -11,7 +11,15 @@ namespace TicketBai
         {
             string karpeta = @"C:\TicketBAI\XML";
             Directory.CreateDirectory(karpeta);
-            string xmlPath = Path.Combine(karpeta, $"{t.Id}.xml");
+            string fitxategiIzena = "Ticket_Ezezaguna";
+            if (t.Produktuak.Count > 0)
+            {
+                // Lehenengo produktuaren izena hartzen dugu fitxategiaren izenerako
+                fitxategiIzena = t.Produktuak[0].Izena;
+            }
+
+            // Hemen izena aldatzen dugu
+            string xmlPath = Path.Combine(karpeta, $"{fitxategiIzena}.xml");
 
             try
             {
@@ -28,7 +36,8 @@ namespace TicketBai
                     writer.WriteStartElement("Ticket");
                     writer.WriteAttributeString("id", t.Id.ToString());
 
-                    writer.WriteElementString("Data", t.Data.ToString()?? "");
+                    writer.WriteElementString("Eguna", t.Eguna.ToString()?? "");
+                    writer.WriteElementString("Ordua", t.Ordua.ToString() ?? "");
                     writer.WriteElementString("Saltzailea", t.Saltzailea?.Izena ?? "");
 
                     foreach (var p in t.Produktuak)

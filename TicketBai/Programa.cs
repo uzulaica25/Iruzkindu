@@ -118,40 +118,74 @@ namespace TicketBai
                 Console.WriteLine("Prozesua amaituta.\n");
             }
 
-            static void EstatistikakErakutsi()
+        static void EstatistikakErakutsi()
+        {
+            string fitx = "bidalketak.csv";
+
+            if (!File.Exists(fitx))
             {
-                string fitx = "bidalketak.csv";
-
-                if (!System.IO.File.Exists(fitx))
-                {
-                    Console.WriteLine("Ez dago bidalketa fitxategirik.");
-                    return;
-                }
-
-                string[] lerroak = File.ReadAllLines(fitx);
-
-                if (lerroak.Length <= 1)
-                {
-                    Console.WriteLine("Ez dago bidalketa daturik.");
-                    return;
-                }
-
-                // Zenbatu ticketak (burua kenduta)
-                int totalTicketak = lerroak.Length - 1;
-                Console.WriteLine($"Bidalketa totalak: {totalTicketak}");
-
-                // Adibidez, azken 5 ticketak erakutsi
-                Console.WriteLine("Azken 5 ticketak:");
-                int start = Math.Max(1, lerroak.Length - 5); // lerroak[0] = burua
-                for (int i = start; i < lerroak.Length; i++)
-                {
-                    Console.WriteLine(lerroak[i]);
-                }
-
-                Console.WriteLine();
+                Console.WriteLine("Ez dago bidalketa fitxategirik.");
+                return;
             }
+
+            string[] lerroak = File.ReadAllLines(fitx);
+
+            if (lerroak.Length <= 1)
+            {
+                Console.WriteLine("Ez dago bidalketa daturik.");
+                return;
+            }
+
+            int totalTicketak = lerroak.Length - 1; // burua kenduta
+            Console.WriteLine($"Bidalketa totalak: {totalTicketak}");
+            Console.WriteLine();
+
+            Console.WriteLine("Aukeratu zer erakutsi:");
+            Console.WriteLine("1 - Azken ticketa");
+            Console.WriteLine("2 - Azken 10 ticketak");
+            Console.WriteLine("3 - Ticket guztiak");
+            Console.Write("Aukera: ");
+
+            string aukera = Console.ReadLine();
+            Console.WriteLine();
+
+            switch (aukera)
+            {
+                case "1":
+                    // Azken ticketa
+                    Console.WriteLine("Azken ticketa:");
+                    Console.WriteLine(lerroak[lerroak.Length - 1]);
+                    break;
+
+                case "2":
+                    // Azken 10 ticketak
+                    Console.WriteLine("Azken 10 ticketak:");
+                    int start10 = Math.Max(1, lerroak.Length - 10);
+                    for (int i = start10; i < lerroak.Length; i++)
+                    {
+                        Console.WriteLine(lerroak[i]);
+                    }
+                    break;
+
+                case "3":
+                    // Ticket guztiak
+                    Console.WriteLine("Ticket guztiak:");
+                    for (int i = 1; i < lerroak.Length; i++) // 0 = burua
+                    {
+                        Console.WriteLine(lerroak[i]);
+                    }
+                    break;
+
+                default:
+                    Console.WriteLine("Aukera okerra.");
+                    break;
+            }
+
+            Console.WriteLine();
         }
+
     }
+}
 
 
 

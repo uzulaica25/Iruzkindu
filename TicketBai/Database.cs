@@ -1,9 +1,10 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
-using MySql.Data.MySqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Mysqlx.Expect.Open.Types.Condition.Types;
 
 
 namespace TicketBai
@@ -47,30 +48,54 @@ namespace TicketBai
 
             try
             {
-                string sql = @"INSERT INTO Saltzailea
+                string sql = @"INSERT IGNORE INTO Saltzailea
                 (idSaltzailea, SaltzaileaIzena)
-                    VALUES (@id, @izena)";  
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@id", t.Saltzailea.Id);
-                cmd.Parameters.AddWithValue("@izena", t.Saltzailea.Izena);
+                    VALUES (@id, @izena)
+                 ON DUPLICATE KEY UPDATE SaltzaileaIzena = @izena";
+
+                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", t.Saltzailea.Id);
+                    cmd.Parameters.AddWithValue("@izena", t.Saltzailea.Izena);
+                    cmd.ExecuteNonQuery();
+                }
 
                 string sql2 = @"INSERT INTO Produktua
-                 (ProduktuaIzena, ProduktuaPrezioa, ProduktuaPisua)
-                VALUES ( @izena, @prezioa, @pisua)";
+                (ProduktuaIzena, ProduktuaPrezioa, ProduktuaPisua,PrezioaKg)
+                VALUES (@izena, @prezioa,@pisua,@prezioaKg)";
 
-                
-                
-
-                    cmd.Parameters.AddWithValue("@izena", p.Izena);
-                    cmd.Parameters.AddWithValue("@prezioa", p.Prezioa);
-                    cmd.Parameters.AddWithValue("@pisua", p.Pisua);
-
-                    cmd.ExecuteNonQuery();
-                
                
+                foreach (var p in t.Produktuak)
+                {
+                    
+                    using (MySqlCommand cmd2 = new MySqlCommand(sql2, conn))
+                    {
+                        cmd2.Parameters.AddWithValue("@izena", p.Izena);     
+                        cmd2.Parameters.AddWithValue("@prezioa", p.Prezioa);
+                        cmd2.Parameters.AddWithValue("@pisua", p.Pisua);
+                        cmd2.Parameters.AddWithValue("@prezioaKg", p.PrezioaKg);
 
+                        cmd2.ExecuteNonQuery();
+                    }
+                }
+
+                string sql3 = @"INSERT INTO Ticket
+                ( TicketOrdua, TicketEguna)
+                VALUES (@ordua,@eguna)";
+                using (MySqlCommand cmd3 = new MySqlCommand(sql3, conn))
+                {
+                    cmd3.Parameters.AddWithValue("@Ordua", t.Ordua);
+                    cmd3.Parameters.AddWithValue("@Eguna", t.Eguna);
+
+                    cmd3.ExecuteNonQuery();
+
+
+                }
 
                 
+
+
+
 
                 Console.WriteLine($"Ticket DB-n gorde da: {t.Id}");
             }
