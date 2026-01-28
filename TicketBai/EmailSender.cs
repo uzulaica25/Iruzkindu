@@ -1,34 +1,61 @@
 ﻿using System;
 using System.IO;
+using System.Net;
+using System.Net.Mail;
 namespace TicketBai
 {
     static class EmailSender
     {
         public static void Bidali(string xmlPath)
         {
-            try
+                   string xmlKarpeta = @"C:\TicketBAI\XML";
+
+            string[] xmlFitxategiak = Directory.GetFiles(xmlKarpeta);
+
+            if (xmlFitxategiak.Length == 0)
             {
-                // Fitxategia existitzen dela egiaztatu
-                if (string.IsNullOrWhiteSpace(xmlPath) ||!File.Exists(xmlPath))
+                Console.WriteLine("⚠ Ez da XML fitxategirik aurkitu");
+                return;
+            }
+
+            // 3️⃣ XML bakoitza bidali
+            foreach (string fitxategi in xmlFitxategiak)
+            {
+                try
                 {
-                    Console.WriteLine($"Errorea: XML fitxategia ez da aurkitu: {xmlPath}");
-                    return;
+                    // Email sortu
+                    MailMessage emaila = new MailMessage();
+                    emaila.From = new MailAddress("unaxzulaila@gmail.com");
+                    emaila.To.Add("unaxzulaila@gmail.com");
+                    emaila.Subject = "Ticket XML";
+                    emaila.Body = "Hemen daude saldu ditugun produktuen tiketak";
+                    emaila.Attachments.Add(new Attachment(fitxategi));
+
+                    // SMTP konfigurazioa (Gmail)
+                    SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
+                    smtp.Credentials = new NetworkCredential(
+                        "unaxzulaila@gmail.com",
+                        "kgbz qzrg ayyw xihv"
+                    );
+                    smtp.EnableSsl = true;
+
+                    // Bidali emaila
+                    smtp.Send(emaila);
+
+                    Console.WriteLine($"📧 Bidalia: {Path.GetFileName(fitxategi)}");
                 }
-
-                // Simulazioa: email bidali balitz bezala
-                Console.WriteLine($"Email bidalia: {xmlPath} (simulazioa)");
-
-                // Benetan SMTP erabiliko bazenu:
-                // - System.Net.Mail.MailMessage
-                // - SmtpClient
-                // - fitxategia gehitu attachment bezala
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ Errorea bidaltzean {Path.GetFileName(fitxategi)}: {ex.Message}");
+                }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Errorea email bidaltzean: {ex.Message}");
-            }
+
+            Console.WriteLine("✅ Prozesua amaitu da");
         }
+
+
     }
+}
     static class ExcelLogger
     {
         private static string fitx = "bidalketak.csv";
@@ -59,4 +86,4 @@ namespace TicketBai
             }
         }
     }
-}
+

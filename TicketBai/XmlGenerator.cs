@@ -10,30 +10,39 @@ namespace TicketBai
         public static string Sortu(Ticket t)
         {
             string karpeta = @"C:\TicketBAI\XML";
-            Directory.CreateDirectory(karpeta); //
+            Directory.CreateDirectory(karpeta);
             string xmlPath = Path.Combine(karpeta, $"{t.Id}.xml");
-
-
 
             try
             {
-                using (StreamWriter sw = new StreamWriter(xmlPath))
+                XmlWriterSettings settings = new XmlWriterSettings
                 {
-                    sw.WriteLine($"<Ticket id='{t.Id}'>");
-                    sw.WriteLine($"  <Data>{t.Data}</Data>");
-                    sw.WriteLine($"  <Saltzailea>{t.Saltzailea.Izena}</Saltzailea>");
-                  
-                    if (t.Produktuak.Count > 0)
+                    Indent = true,
+                    IndentChars = "  ",
+                    NewLineOnAttributes = false
+                };
+
+                using (XmlWriter writer = XmlWriter.Create(xmlPath, settings))
+                {
+                    writer.WriteStartDocument();
+                    writer.WriteStartElement("Ticket");
+                    writer.WriteAttributeString("id", t.Id.ToString());
+
+                    writer.WriteElementString("Data", t.Data.ToString()?? "");
+                    writer.WriteElementString("Saltzailea", t.Saltzailea?.Izena ?? "");
+
+                    foreach (var p in t.Produktuak)
                     {
-                        var p = t.Produktuak[0];
-                        sw.WriteLine("  <Produktua>");
-                        sw.WriteLine($"    <Izena>{p.Izena}</Izena>");
-                        sw.WriteLine($"    <PrezioKg>{p.PrezioaKg}</PrezioKg>");
-                        sw.WriteLine($"    <Pisua>{p.Pisua}</Pisua>");
-                        sw.WriteLine($"    <Prezioa>{p.Prezioa}</Prezioa>");
-                        sw.WriteLine("  </Produktua>");
+                        writer.WriteStartElement("Produktua");
+                        writer.WriteElementString("Izena", p.Izena ?? "");
+                        writer.WriteElementString("PrezioKg", p.PrezioaKg.ToString());
+                        writer.WriteElementString("Pisua", p.Pisua.ToString());
+                        writer.WriteElementString("Prezioa", p.Prezioa.ToString());
+                        writer.WriteEndElement(); // Produktua
                     }
-                    sw.WriteLine("</Ticket>");
+
+                    writer.WriteEndElement(); // Ticket
+                    writer.WriteEndDocument();
                 }
 
                 Console.WriteLine($"XML sortua: {xmlPath}");
@@ -50,35 +59,44 @@ namespace TicketBai
     {
         public static bool Balidatu(string xmlPath, string xsdPath)
         {
-            bool baliogarria = true;
-
-            XmlSchemaSet schemas = new XmlSchemaSet();
-            schemas.Add("", xsdPath); 
-
-            XmlReaderSettings settings = new XmlReaderSettings();
-            settings.Schemas = schemas;
-            settings.ValidationType = ValidationType.Schema;
-
-            settings.ValidationEventHandler += (sender, e) =>
-            {
-                baliogarria = false;
-                Console.WriteLine($"Errorea XSD egiaztapenean: {e.Message}");
-            };
+            bool esValido = true;
 
             try
             {
+                // Crear el conjunto de esquemas y agregar el XSD
+                XmlSchemaSet schemas = new XmlSchemaSet();
+                schemas.Add("", xsdPath); // "" = namespace vacío
+
+                // Configurar el lector para validar
+                XmlReaderSettings settings = new XmlReaderSettings();
+                settings.Schemas = schemas;
+                settings.ValidationType = ValidationType.Schema;
+
+                // Capturar errores de validación
+                settings.ValidationEventHandler += (sender, e) =>
+                {
+                    Console.WriteLine($"Error de validación: {e.Message}");
+                    esValido = false;
+                };
+
+                // Leer el XML con validación
                 using (XmlReader reader = XmlReader.Create(xmlPath, settings))
                 {
-                    while (reader.Read()) { } 
+                    while (reader.Read()) { } // Recorrer todo el XML
                 }
+
+                if (esValido)
+                    Console.WriteLine("XML válido ✅");
+                else
+                    Console.WriteLine("XML inválido ❌");
             }
-            catch (XmlException ex)
+            catch (Exception ex)
             {
-                Console.WriteLine($"XML akatsa: {ex.Message}");
-                return false;
+                Console.WriteLine($"Excepción durante validación: {ex.Message}");
+                esValido = false;
             }
 
-            return baliogarria;
+            return esValido;
         }
     }
 }

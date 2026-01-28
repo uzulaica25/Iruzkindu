@@ -95,7 +95,7 @@ namespace TicketBai
 
                         // 6️⃣ XML balidatu
 
-                       
+                      
 
                         // 7️⃣ Email bidali
                         EmailSender.Bidali(xmlPath);

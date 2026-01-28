@@ -47,15 +47,30 @@ namespace TicketBai
 
             try
             {
-                // Hemen SQL INSERT logika jarri daiteke
-                // Adibidez: INSERT INTO tickets (Id, Data, Saltzailea, Guztira) VALUES (...)
-                string sql = "INSERT INTO tickets (Id, Data, Saltzailea, Guztira) VALUES (@Id, @Data, @Saltzailea, @Guztira)";
+                string sql = @"INSERT INTO Saltzailea
+                (idSaltzailea, SaltzaileaIzena)
+                    VALUES (@id, @izena)";  
                 MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@Id", t.Id);
-                cmd.Parameters.AddWithValue("@Data", t.Data);
-                cmd.Parameters.AddWithValue("@Saltzailea", t.Saltzailea.Izena);
-                cmd.Parameters.AddWithValue("@Guztira", t.KalkulatuTotala());
-                cmd.ExecuteNonQuery();
+                cmd.Parameters.AddWithValue("@id", t.Saltzailea.Id);
+                cmd.Parameters.AddWithValue("@izena", t.Saltzailea.Izena);
+
+                string sql2 = @"INSERT INTO Produktua
+                 (ProduktuaIzena, ProduktuaPrezioa, ProduktuaPisua)
+                VALUES ( @izena, @prezioa, @pisua)";
+
+                
+                
+
+                    cmd.Parameters.AddWithValue("@izena", p.Izena);
+                    cmd.Parameters.AddWithValue("@prezioa", p.Prezioa);
+                    cmd.Parameters.AddWithValue("@pisua", p.Pisua);
+
+                    cmd.ExecuteNonQuery();
+                
+               
+
+
+                
 
                 Console.WriteLine($"Ticket DB-n gorde da: {t.Id}");
             }
