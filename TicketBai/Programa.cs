@@ -68,6 +68,7 @@ namespace TicketBai
                 // 1️⃣ Baskula-karpetak
                 string[] baskulak = Directory.GetDirectories(karpetaNagusia);
 
+                
                 foreach (string baskulaPath in baskulak)
                 {
                     string baskulaIzena = Path.GetFileName(baskulaPath);
@@ -88,17 +89,21 @@ namespace TicketBai
                         {
 
 
-                            // 5️⃣ XML sortu
-                            string xmlPath = XmlGenerator.Sortu(t);
+                        // 5️⃣ XML sortu
+                        string xmlPath = XmlGenerator.Sortu(t);
 
 
 
                         // 6️⃣ XML balidatu
 
-                      
+
+                        string xsdFitxategia = @"C:\TicketBAI\XSD\Ticket.xsd";
+
+                        bool ondo = XmlValidator.Balidatu(xmlPath, xsdFitxategia);
+
 
                         // 7️⃣ Email bidali
-                        EmailSender.Bidali(xmlPath);
+                        EmailSender.Bidali();
 
                             // 8️⃣ Excel log
                             ExcelLogger.Erregistratu(t.Id, DateTime.Now);
@@ -150,8 +155,8 @@ namespace TicketBai
                     break;
 
                 case "4":
-                    Console.WriteLine("4. Produktu bakoitza zenbat ticket desberdinetan agertzen den");
-                    Estatistika.ProduktuaTicketko(connString);
+                    Console.WriteLine("4. Egunean batez besteko salmenta");
+                    Estatistika.SalmentaMaiztasuna(connString);
                     break;
 
                 default:

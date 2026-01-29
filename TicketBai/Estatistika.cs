@@ -1,10 +1,11 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using Mysqlx.Crud;
+using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Data.SqlClient;
-using MySql.Data.MySqlClient;
 
 namespace TicketBai
 {
@@ -12,89 +13,91 @@ namespace TicketBai
     {
         public static void SalmentaHandiena(string connString)
         {
-            
             string query = @"
-            SELECT s.Name, MAX(t.TotalAmount) AS MaxSale
-            FROM tickets t
-            JOIN sellers s ON t.SellerId = s.Id
-            GROUP BY s.Name";
+            SELECT s.SaltzaileaIzena, MAX(t.PrezioOsoa) AS SalmentaHandiena
+            FROM Ticket t
+            JOIN Saltzailea s ON t.idSaltzailea = s.idSaltzailea
+            GROUP BY s.SaltzaileaIzena;
+            ";
+            using (MySqlConnection conn = new MySqlConnection(connString))
+            using (MySqlCommand cmd = new MySqlCommand(query, conn))
+            {
+                conn.Open();
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    Console.WriteLine($"Saltzailea: {reader["SaltzaileaIzena"]} | Salmenta handiena: {reader["SalmentaHandiena"]}");
+                }
+            }
+        }
+
+        public static void BakoitzakZenbat(string connString)
+        {
+            string query = @"
+            SELECT s.SaltzaileaIzena, COUNT(t.idTicket) AS TicketKopurua
+            FROM Ticket t
+            JOIN Saltzailea s ON t.idSaltzailea = s.idSaltzailea
+            GROUP BY s.SaltzaileaIzena";
 
             using (MySqlConnection conn = new MySqlConnection(connString))
             using (MySqlCommand cmd = new MySqlCommand(query, conn))
             {
                 conn.Open();
-                MySqlDataReader reader = cmd.ExecuteReader();
-
+                using var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    Console.WriteLine($"Saltzailea: {reader["Name"]} | Salmenta handiena: {reader["MaxSale"]}€");
+                    Console.WriteLine($"Saltzailea: {reader["SaltzaileaIzena"]} | Ticket kopurua: {reader["TicketKopurua"]}");
                 }
             }
         }
 
-        public static void BakoitzakZenbat(string connectionString)
+        public static void EguneanZenbat(string connString)
         {
             string query = @"
-            SELECT s.Name, COUNT(t.Id) AS TicketCount
-            FROM tickets t
-            JOIN sellers s ON t.SellerId = s.Id
-            GROUP BY s.Name";
+            SELECT TicketEguna, COUNT(idTicket) AS TicketEgunean
+            FROM Ticket
+            GROUP BY TicketEguna
+            ORDER BY TicketEguna";
 
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (MySqlConnection conn = new MySqlConnection(connString))
             using (MySqlCommand cmd = new MySqlCommand(query, conn))
             {
                 conn.Open();
-                var reader = cmd.ExecuteReader();
-
+                using var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    Console.WriteLine($"Saltzailea: {reader["Name"]} | Ticket kopurua: {reader["TicketCount"]}");
+                    Console.WriteLine($"Eguna: {reader["TicketEguna"]} | Ticketak: {reader["TicketEgunean"]}");
                 }
             }
         }
 
-        public static void EguneanZenbat(string connectionString)
+
+        public static void SalmentaMaiztasuna(string connString)
         {
             string query = @"
-            SELECT CAST(Date AS DATE) AS TicketDate, COUNT(Id) AS TicketCount
-            FROM tickets
-            GROUP BY CAST(Date AS DATE)
-            ORDER BY TicketDate";
-
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            SELECT DATE(t.TicketEguna) AS Eguna, AVG(t.PrezioOsoa) AS BatezBestekoSalmenta
+            FROM Ticket t
+            GROUP BY DATE(t.TicketEguna)
+            ORDER BY Eguna ASC;
+            ";
+            using (MySqlConnection conn = new MySqlConnection(connString))
             using (MySqlCommand cmd = new MySqlCommand(query, conn))
             {
                 conn.Open();
-                var reader = cmd.ExecuteReader();
-
+                using var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    Console.WriteLine($"Eguna: {reader["TicketDate"]} | Ticketak: {reader["TicketCount"]}");
+                    Console.WriteLine($"Eguna: {reader["Eguna"]} | Batez bestekoa: {reader["BatezBestekoSalmenta"]}");
                 }
             }
         }
 
-        public static void ProduktuaTicketko(string connectionString)
-        {
-            string query = @"
-            SELECT p.Name, COUNT(DISTINCT tl.TicketId) AS TicketFrequency
-            FROM ticket_lines tl
-            JOIN products p ON tl.ProductId = p.Id
-            GROUP BY p.Name
-            ORDER BY TicketFrequency DESC";
-
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            using (MySqlCommand cmd = new MySqlCommand(query, conn))
-            {
-                conn.Open();
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    Console.WriteLine($"Produktua: {reader["Name"]} | Ticket desberdinak: {reader["TicketFrequency"]}");
-                }
-            }
         }
 
     }
-}
+
+    
+
+    
+
+

@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Schema;
 using TicketBai;
 namespace TicketBai
 {
     static class XmlGenerator
     {
+
+
         public static string Sortu(Ticket t)
         {
             string karpeta = @"C:\TicketBAI\XML";
@@ -14,11 +18,11 @@ namespace TicketBai
             string fitxategiIzena = "Ticket_Ezezaguna";
             if (t.Produktuak.Count > 0)
             {
-                
+
                 fitxategiIzena = t.Produktuak[0].Izena;
             }
 
-            
+
             string xmlPath = Path.Combine(karpeta, $"{fitxategiIzena}.xml");
 
             try
@@ -36,7 +40,7 @@ namespace TicketBai
                     writer.WriteStartElement("Ticket");
                     writer.WriteAttributeString("id", t.Id.ToString());
 
-                    writer.WriteElementString("Eguna", t.Eguna.ToString()?? "");
+                    writer.WriteElementString("Eguna", t.Eguna.ToString() ?? "");
                     writer.WriteElementString("Ordua", t.Ordua.ToString() ?? "");
                     writer.WriteElementString("Saltzailea", t.Saltzailea?.Izena ?? "");
 
@@ -44,9 +48,9 @@ namespace TicketBai
                     {
                         writer.WriteStartElement("Produktua");
                         writer.WriteElementString("Izena", p.Izena ?? "");
-                        writer.WriteElementString("PrezioKg", p.PrezioaKg.ToString());
-                        writer.WriteElementString("Pisua", p.Pisua.ToString());
-                        writer.WriteElementString("Prezioa", p.Prezioa.ToString());
+                        writer.WriteElementString("PrezioKg", p.PrezioaKg.ToString(CultureInfo.InvariantCulture)); // 2.5
+                        writer.WriteElementString("Pisua", p.Pisua.ToString(CultureInfo.InvariantCulture));       // 1.2
+                        writer.WriteElementString("Prezioa", p.Prezioa.ToString(CultureInfo.InvariantCulture));
                         writer.WriteEndElement(); // Produktua
                     }
 
@@ -68,44 +72,42 @@ namespace TicketBai
     {
         public static bool Balidatu(string xmlPath, string xsdPath)
         {
-            bool esValido = true;
+            bool baliozkoa = true;
 
-            try
+            XmlSchemaSet schemas = new XmlSchemaSet();
+            schemas.Add("", xsdPath);
+
+            XmlReaderSettings settings = new XmlReaderSettings();
+            settings.Schemas = schemas;
+            settings.ValidationType = ValidationType.Schema;
+            settings.ValidationEventHandler += (sender, e) =>
             {
-                // Crear el conjunto de esquemas y agregar el XSD
-                XmlSchemaSet schemas = new XmlSchemaSet();
-                schemas.Add("", xsdPath); // "" = namespace vacío
+                Console.WriteLine($"Errorea: {e.Message}");
+                baliozkoa = false;
+            };
 
-                // Configurar el lector para validar
-                XmlReaderSettings settings = new XmlReaderSettings();
-                settings.Schemas = schemas;
-                settings.ValidationType = ValidationType.Schema;
-
-                // Capturar errores de validación
-                settings.ValidationEventHandler += (sender, e) =>
+            using (XmlReader reader = XmlReader.Create(xmlPath, settings))
+            {
+                try
                 {
-                    Console.WriteLine($"Error de validación: {e.Message}");
-                    esValido = false;
-                };
-
-              
-                using (XmlReader reader = XmlReader.Create(xmlPath, settings))
-                {
-                    while (reader.Read()) { } // Recorrer todo el XML
+                    while (reader.Read()) { }
                 }
-
-                if (esValido)
-                    Console.WriteLine("XML válido ✅");
-                else
-                    Console.WriteLine("XML inválido ❌");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Excepción durante validación: {ex.Message}");
-                esValido = false;
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception: {ex.Message}");
+                    baliozkoa = false;
+                }
             }
 
-            return esValido;
+            if (baliozkoa)
+                Console.WriteLine("XML baliozkoa da XSDaren arabera.");
+            else
+                Console.WriteLine("XML ez da baliozkoa.");
+
+            return baliozkoa;
         }
     }
 }
+
+
+

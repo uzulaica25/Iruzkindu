@@ -16,9 +16,11 @@ namespace TicketBai
         public string Ordua { get; set; }    // Adib: "15:30:00"         // Data eta ordua
         public Saltzailea Saltzailea { get; set; }   // Saltzailea
         public List<Produktua> Produktuak { get; set; }  // Produktuen zerrenda
+        public decimal PrezioOsoa { get; set; } // ← Hemen gehitu
+
 
         // ===== KONSTRUKTOREA =====
-        public Ticket(string id, DateTime dataOsoa, Saltzailea saltzailea)
+        public Ticket(string id, DateTime dataOsoa, Saltzailea saltzailea, decimal prezioOsoa = 0)
         {
             Id = id;
      
@@ -26,6 +28,7 @@ namespace TicketBai
             Ordua = dataOsoa.ToString("HH:mm:ss");
             Saltzailea = saltzailea;
             Produktuak = new List<Produktua>();
+            PrezioOsoa = prezioOsoa;
         }
 
         // ===== METODOAK =====
@@ -36,16 +39,8 @@ namespace TicketBai
             Produktuak.Add(new Produktua(izena,prezioaKg, prezioa, pisua));
         }
 
-        // Guztizkoa kalkulatu
-        public decimal KalkulatuTotala()
-        {
-            decimal totala = 0;
-            foreach (var p in Produktuak)
-            {
-                totala += p.Prezioa;
-            }
-            return totala;
-        }
+       
+        
     }
     // ===== Produktua klasea =====
     class Produktua

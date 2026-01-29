@@ -17,7 +17,7 @@ static class TicketFactory
         {
             if (!DateTime.TryParse(partes[1], out fechaTicket))
             {
-                Console.WriteLine("Fecha inválida en nombre del archivo: " + partes[1]);
+                Console.WriteLine("Data okerra " + partes[1]);
                 fechaTicket = DateTime.Now;
             }
         }
@@ -31,7 +31,7 @@ static class TicketFactory
 
             if (zatitu.Length < 5)
             {
-                Console.WriteLine("Formato incorrecto: " + lerroa);
+                Console.WriteLine("Formatu okerra: " + lerroa);
                 continue;
             }
 
@@ -64,20 +64,26 @@ static class TicketFactory
             if (!decimal.TryParse(zatitu[4], out decimal Prezioa))
                 Prezioa = 0;
 
-           
+            Produktua p = new Produktua(produktuaIzena, PrezioaKg, Pisua, Prezioa);
 
-           
-            Ticket t = new Ticket(produktuaIzena, fechaTicket, s);
+            // Ticket objektua sortu, hemen Prezioa da tiketeko prezioa
+            Ticket t = new Ticket("14", DateTime.Now, s, Prezioa);
+
+            // Produktua ticket-en gehitu
+            t.Produktuak.Add(p);
+
+
+            
             t.Baskula = baskula;
 
             
             t.GehituProduktua(produktuaIzena,PrezioaKg, Prezioa, Pisua);
 
             ticketak.Add(t);
-            Console.WriteLine($"Ticket creado: {t.Id} - {saltzaileaIzena} - {fechaTicket.ToShortDateString()}");
+            Console.WriteLine($"Tiketa sortua: {t.Id} - {saltzaileaIzena} - {fechaTicket.ToShortDateString()}");
         }
 
-        Console.WriteLine("Tickets totales creados: " + ticketak.Count);
+        Console.WriteLine("Sortu diren tiket guztiak: " + ticketak.Count);
         return ticketak;
     }
 }

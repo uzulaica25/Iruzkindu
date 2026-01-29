@@ -79,14 +79,17 @@ namespace TicketBai
                     }
                 }
 
+
                 string sql3 = @"INSERT INTO Ticket
-                ( TicketOrdua, TicketEguna)
-                VALUES (@ordua,@eguna)";
+                ( TicketOrdua, TicketEguna,PrezioOsoa,idSaltzailea)
+                VALUES (@ordua,@eguna,@prezioOsoa,@idSaltzailea)";
                 using (MySqlCommand cmd3 = new MySqlCommand(sql3, conn))
                 {
                     cmd3.Parameters.AddWithValue("@Ordua", t.Ordua);
                     cmd3.Parameters.AddWithValue("@Eguna", t.Eguna);
-
+                    cmd3.Parameters.AddWithValue("@PrezioOsoa", t.PrezioOsoa);
+                    cmd3.Parameters.AddWithValue("@idSaltzailea", t.Saltzailea.Id);
+                    
                     cmd3.ExecuteNonQuery();
 
 

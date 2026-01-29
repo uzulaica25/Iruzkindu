@@ -2,51 +2,47 @@
 using System.IO;
 using System.Net;
 using System.Net.Mail;
+using System.Xml;
+using System.Xml.Schema;
 namespace TicketBai
 {
     static class EmailSender
     {
-        public static void Bidali(string xmlPath)
+        public static void Bidali()
         {
-            string xmlKarpeta = @"C:\TicketBAI\XML";
+            string karpeta = @"C:\TicketBAI\XML";
+            string jaso = "tickfy28@gmail.com";
 
-            string[] xmlFitxategiak = Directory.GetFiles(xmlKarpeta);
+            string[] xmlak = Directory.GetFiles(karpeta, "*.xml");
 
-            if (xmlFitxategiak.Length == 0)
-            {
-                Console.WriteLine("⚠ Ez da XML fitxategirik aurkitu");
-                return;
-            }
+            if (xmlak.Length == 0)
+                throw new Exception("Ez dago .xml fitxategirik karpeta honetan: " + karpeta);
 
-            // 3️⃣ XML bakoitza bidali
-            foreach (string fitxategi in xmlFitxategiak)
-            {
-                try
-                {
-                    MailMessage test = new MailMessage("unaxzulaila@gmail.com", "unaxzulaila@gmail.com");
-                    test.Subject = "XMl ";
-                    test.Body = "Hemen daude salmenten tiketak";
+            string xmlBidea = xmlak[0];
 
-                    SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
-                    smtp.Credentials = new NetworkCredential("unaxzulaila@gmail.com", "njao trwe rzbl yuoe ");
-                    smtp.EnableSsl = true;
-                    smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
-                    smtp.UseDefaultCredentials = false;
+            Type outlookType = Type.GetTypeFromProgID("Outlook.Application");
+            if (outlookType == null)
+                throw new Exception("Outlook ez dago instalatuta ordenagailu honetan.");
 
-                    smtp.Send(test);
-                    Console.WriteLine("✅ Test mezua bidali da!");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("❌ Test mezua bidaltzean: " + ex.Message);
-                }
+            dynamic outlookApp = Activator.CreateInstance(outlookType);
+            dynamic mail = outlookApp.CreateItem(0);
 
-                Console.WriteLine("✅ Prozesua amaitu da");
-            }
+            mail.To = jaso;
+            mail.Subject = "Ticketak XML formatuan";
+            mail.Body = "Kaixo, hemen dago XML-a gure 4 baskulek egindako ticketekin";
+            mail.Attachments.Add(xmlBidea);
+
+            mail.Send();
 
 
         }
     }
+
+
+
+
+
+
     static class ExcelLogger
     {
         private static string fitx = "bidalketak.csv";
@@ -78,4 +74,5 @@ namespace TicketBai
         }
     }
 }
+
 
