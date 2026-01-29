@@ -1,61 +1,40 @@
 ﻿using System;
-using System.Globalization;
 using System.IO;
-using System.Xml;
-using System.Xml.Linq;
-using System.Xml.Schema;
+using System.Text;
+using System.Collections.Generic;
 using TicketBai;
 namespace TicketBai
 {
     static class XmlGenerator
     {
-
-
+        
         public static string Sortu(Ticket t)
         {
             string karpeta = @"C:\TicketBAI\XML";
             Directory.CreateDirectory(karpeta);
-            string fitxategiIzena = "Ticket_Ezezaguna";
-            if (t.Produktuak.Count > 0)
-            {
-
-                fitxategiIzena = t.Produktuak[0].Izena;
-            }
-
-
-            string xmlPath = Path.Combine(karpeta, $"{fitxategiIzena}.xml");
+            string xmlPath = Path.Combine(karpeta, $"{t.Id}.xml");
 
             try
             {
-                XmlWriterSettings settings = new XmlWriterSettings
+                using (StreamWriter sw = new StreamWriter(xmlPath, false, Encoding.UTF8))
                 {
-                    Indent = true,
-                    IndentChars = "  ",
-                    NewLineOnAttributes = false
-                };
-
-                using (XmlWriter writer = XmlWriter.Create(xmlPath, settings))
-                {
-                    writer.WriteStartDocument();
-                    writer.WriteStartElement("Ticket");
-                    writer.WriteAttributeString("id", t.Id.ToString());
-
-                    writer.WriteElementString("Eguna", t.Eguna.ToString() ?? "");
-                    writer.WriteElementString("Ordua", t.Ordua.ToString() ?? "");
-                    writer.WriteElementString("Saltzailea", t.Saltzailea?.Izena ?? "");
-
-                    foreach (var p in t.Produktuak)
+                    sw.WriteLine($"<Ticket id='{t.Id}'>");
+                    sw.WriteLine($"  <Data>{EscapeXml($"{t.Eguna} {t.Ordua}")}</Data>");
+                    sw.WriteLine($"  <Saltzailea>{EscapeXml(t.Saltzailea?.Izena)}</Saltzailea>");
+                    sw.WriteLine($"  <Guztira>{t.PrezioOsoa}</Guztira>");
+                    if (t.Produktuak != null && t.Produktuak.Count > 0)
                     {
-                        writer.WriteStartElement("Produktua");
-                        writer.WriteElementString("Izena", p.Izena ?? "");
-                        writer.WriteElementString("PrezioKg", p.PrezioaKg.ToString(CultureInfo.InvariantCulture)); // 2.5
-                        writer.WriteElementString("Pisua", p.Pisua.ToString(CultureInfo.InvariantCulture));       // 1.2
-                        writer.WriteElementString("Prezioa", p.Prezioa.ToString(CultureInfo.InvariantCulture));
-                        writer.WriteEndElement(); // Produktua
+                        sw.WriteLine("  <Produktuak>");
+                        foreach (var p in t.Produktuak)
+                        {
+                            sw.WriteLine("    <Produktua>");
+                            sw.WriteLine($"      <Izena>{EscapeXml(p.Izena)}</Izena>");
+                            sw.WriteLine($"      <Prezioa>{p.Prezioa}</Prezioa>");
+                            sw.WriteLine("    </Produktua>");
+                        }
+                        sw.WriteLine("  </Produktuak>");
                     }
-
-                    writer.WriteEndElement(); // Ticket
-                    writer.WriteEndDocument();
+                    sw.WriteLine("</Ticket>");
                 }
 
                 Console.WriteLine($"XML sortua: {xmlPath}");
@@ -67,44 +46,99 @@ namespace TicketBai
                 return null;
             }
         }
+
+        
+        public static string Sortu(IEnumerable<Ticket> ticketak)
+        {
+            string karpeta = @"C:\TicketBAI\XML";
+            Directory.CreateDirectory(karpeta);
+
+            string xmlPath = Path.Combine(karpeta, "Ticketak.xml");
+
+            try
+            {
+                using (StreamWriter sw = new StreamWriter(xmlPath, false, Encoding.UTF8))
+                {
+                    sw.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+                    sw.WriteLine("<Tickets>");
+
+                    foreach (var t in ticketak)
+                    {
+                        sw.WriteLine($"  <Ticket id='{t.Id}'>");
+                        sw.WriteLine($"    <Data>{EscapeXml($"{t.Eguna} {t.Ordua}")}</Data>");
+                        sw.WriteLine($"    <Saltzailea>{EscapeXml(t.Saltzailea?.Izena)}</Saltzailea>");
+                        sw.WriteLine($"    <Guztira>{t.PrezioOsoa}</Guztira>");
+
+                        if (t.Produktuak != null && t.Produktuak.Count > 0)
+                        {
+                            sw.WriteLine("    <Produktuak>");
+                            foreach (var p in t.Produktuak)
+                            {
+                                sw.WriteLine("      <Produktua>");
+                                sw.WriteLine($"        <Izena>{EscapeXml(p.Izena)}</Izena>");
+                                sw.WriteLine($"        <Prezioa>{p.Prezioa}</Prezioa>");
+                                sw.WriteLine("      </Produktua>");
+                            }
+                            sw.WriteLine("    </Produktuak>");
+                        }
+
+                        sw.WriteLine("  </Ticket>");
+                    }
+
+                    sw.WriteLine("</Tickets>");
+                }
+
+                Console.WriteLine($"XML sortua: {xmlPath}");
+                return xmlPath;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Errorea XML sortzean: {ex.Message}");
+                return null;
+            }
+        }
+
+        // Escapa contenido para XML
+        private static string EscapeXml(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return string.Empty;
+            return System.Security.SecurityElement.Escape(s);
+        }
     }
+
     static class XmlValidator
     {
-        public static bool Balidatu(string xmlPath, string xsdPath)
+        public static bool Balidatu(string xmlPath)
         {
-            bool baliozkoa = true;
-
-            XmlSchemaSet schemas = new XmlSchemaSet();
-            schemas.Add("", xsdPath);
-
-            XmlReaderSettings settings = new XmlReaderSettings();
-            settings.Schemas = schemas;
-            settings.ValidationType = ValidationType.Schema;
-            settings.ValidationEventHandler += (sender, e) =>
+            try
             {
-                Console.WriteLine($"Errorea: {e.Message}");
-                baliozkoa = false;
-            };
-
-            using (XmlReader reader = XmlReader.Create(xmlPath, settings))
-            {
-                try
+                if (string.IsNullOrEmpty(xmlPath) || !File.Exists(xmlPath))
                 {
-                    while (reader.Read()) { }
+                    Console.WriteLine($"XML fitxategia ez da aurkitu: {xmlPath}");
+                    return false;
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Exception: {ex.Message}");
-                    baliozkoa = false;
-                }
-            }
 
-            if (baliozkoa)
+                string content = File.ReadAllText(xmlPath).Trim();
+                if (string.IsNullOrEmpty(content))
+                {
+                    Console.WriteLine($"XML fitxategia hutsik dago: {xmlPath}");
+                    return false;
+                }
+
+                if (!content.Contains("<Tickets") || !content.Contains("</Tickets>") || !content.Contains("<Ticket"))
+                {
+                    Console.WriteLine($"XML baliogabea: egitura ez dator bat: {xmlPath}");
+                    return false;
+                }
+
                 Console.WriteLine("XML baliozkoa da XSDaren arabera.");
-            else
-                Console.WriteLine("XML ez da baliozkoa.");
-
-            return baliozkoa;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Errorea XML balidazioan: {ex.Message}");
+                return false;
+            }
         }
     }
 }

@@ -5,6 +5,9 @@ using TicketBai;
 
 static class TicketFactory
 {
+    
+    private static int nextId = 1;
+
     public static List<Ticket> SortuTicketak(List<string> lerroak, string baskula, string txtPath)
     {
         List<Ticket> ticketak = new List<Ticket>();
@@ -66,21 +69,23 @@ static class TicketFactory
 
             Produktua p = new Produktua(produktuaIzena, PrezioaKg, Pisua, Prezioa);
 
-            // Ticket objektua sortu, hemen Prezioa da tiketeko prezioa
-            Ticket t = new Ticket("14", DateTime.Now, s, Prezioa);
-
-            // Produktua ticket-en gehitu
-            t.Produktuak.Add(p);
-
+           
+            Ticket t = new Ticket(nextId.ToString(), fechaTicket, s, Prezioa);
+            nextId++; 
 
             
+            t.GehituProduktua(produktuaIzena, PrezioaKg, Prezioa, Pisua);
+
             t.Baskula = baskula;
 
-            
-            t.GehituProduktua(produktuaIzena,PrezioaKg, Prezioa, Pisua);
-
             ticketak.Add(t);
-            Console.WriteLine($"Tiketa sortua: {t.Id} - {saltzaileaIzena} - {fechaTicket.ToShortDateString()}");
+            
+         
+            var prevColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Green;
+            
+            Console.WriteLine($"Tiketa sortua: {produktuaIzena} - {saltzaileaIzena} - {fechaTicket.ToShortDateString()} {fechaTicket.ToShortTimeString()}");
+            Console.ForegroundColor = prevColor;
         }
 
         Console.WriteLine("Sortu diren tiket guztiak: " + ticketak.Count);

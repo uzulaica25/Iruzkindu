@@ -5,17 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Mysqlx.Expect.Open.Types.Condition.Types;
-
+using System.IO;
 
 namespace TicketBai
 {
     class Database
     {
-
         private MySqlConnection conn;
         private bool konektatuta = false;
 
-        // ===== DB KONEKTATU =====
         public void Konektatu()
         {
             string connString = "server=localhost;user=root;password=root;database=TicketBaiDB;";
@@ -23,9 +21,6 @@ namespace TicketBai
 
             try
             {
-                // Hemen MySQL konektatzeko logika jarri daiteke
-                // adibidez: MySqlConnection conn = new MySqlConnection(connString);
-                // conn.Open();
                 conn.Open();
                 konektatuta = true;
                 Console.WriteLine("DB konektatuta.");
@@ -37,7 +32,6 @@ namespace TicketBai
             }
         }
 
-        // ===== TICKET GORDE =====
         public void GordeTicket(Ticket t)
         {
             if (!konektatuta)
@@ -48,6 +42,7 @@ namespace TicketBai
 
             try
             {
+                
                 string sql = @"INSERT IGNORE INTO Saltzailea
                 (idSaltzailea, SaltzaileaIzena)
                     VALUES (@id, @izena)
@@ -64,41 +59,37 @@ namespace TicketBai
                 (ProduktuaIzena, ProduktuaPrezioa, ProduktuaPisua,PrezioaKg)
                 VALUES (@izena, @prezioa,@pisua,@prezioaKg)";
 
-               
                 foreach (var p in t.Produktuak)
                 {
-                    
                     using (MySqlCommand cmd2 = new MySqlCommand(sql2, conn))
                     {
-                        cmd2.Parameters.AddWithValue("@izena", p.Izena);     
+                        cmd2.Parameters.AddWithValue("@izena", p.Izena);
                         cmd2.Parameters.AddWithValue("@prezioa", p.Prezioa);
                         cmd2.Parameters.AddWithValue("@pisua", p.Pisua);
                         cmd2.Parameters.AddWithValue("@prezioaKg", p.PrezioaKg);
-
                         cmd2.ExecuteNonQuery();
                     }
                 }
 
-
+               
                 string sql3 = @"INSERT INTO Ticket
-                ( TicketOrdua, TicketEguna,PrezioOsoa,idSaltzailea)
-                VALUES (@ordua,@eguna,@prezioOsoa,@idSaltzailea)";
+                (TicketOrdua, TicketEguna, PrezioOsoa, idSaltzailea)
+                VALUES (@ordua, @eguna, @prezioOsoa, @idSaltzailea)";
+
                 using (MySqlCommand cmd3 = new MySqlCommand(sql3, conn))
                 {
-                    cmd3.Parameters.AddWithValue("@Ordua", t.Ordua);
-                    cmd3.Parameters.AddWithValue("@Eguna", t.Eguna);
-                    cmd3.Parameters.AddWithValue("@PrezioOsoa", t.PrezioOsoa);
+                    cmd3.Parameters.AddWithValue("@ordua", t.Ordua);
+                    cmd3.Parameters.AddWithValue("@eguna", t.Eguna);
+                    cmd3.Parameters.AddWithValue("@prezioOsoa", t.PrezioOsoa);
                     cmd3.Parameters.AddWithValue("@idSaltzailea", t.Saltzailea.Id);
-                    
+
                     cmd3.ExecuteNonQuery();
 
-
+                    
+                    long insertedId = cmd3.LastInsertedId;
+                    if (insertedId > 0)
+                        t.Id = insertedId.ToString();
                 }
-
-                
-
-
-
 
                 Console.WriteLine($"Ticket DB-n gorde da: {t.Id}");
             }
@@ -108,20 +99,17 @@ namespace TicketBai
             }
         }
 
-        
-       
-
-      
         public void Itxi()
         {
             if (konektatuta)
             {
-                conn.Close(); 
+                conn.Close();
                 konektatuta = false;
                 Console.WriteLine("DB itxita.");
             }
         }
     }
+
     static class BackupManager
 
     {
@@ -133,51 +121,22 @@ namespace TicketBai
         {
             try
             {
-                if (!Directory.Exists(xmlKarpeta))
+                if (string.IsNullOrEmpty(fitxategia) || !File.Exists(fitxategia))
                 {
-                    Console.WriteLine("❌ XML karpeta ez da existitzen");
+                    Console.WriteLine($"⚠ Ez da aurkitu backup egiteko fitxategia: {fitxategia}");
                     return;
                 }
 
-                
                 if (!Directory.Exists(backupKarpeta))
                 {
                     Directory.CreateDirectory(backupKarpeta);
                 }
 
-                string[] baskulak = Directory.GetDirectories(karpetaNagusia);
+                string fitxIzen = Path.GetFileName(fitxategia);
+                string helmuga = Path.Combine(backupKarpeta, fitxIzen);
 
-                foreach (string baskulaPath in baskulak)
-                {
-                    string baskulaIzena = Path.GetFileName(baskulaPath);
-                    Console.WriteLine($"→ Baskula: {baskulaIzena}");
-
-                 
-                    string backupBaskula = Path.Combine(backupKarpeta, baskulaIzena);
-                    if (!Directory.Exists(backupBaskula))
-                    {
-                        Directory.CreateDirectory(backupBaskula);
-                    }
-
-                    // 3️⃣ XML fitxategi guztiak lortu
-                    string[] xmlFitxategiak = Directory.GetFiles(xmlKarpeta, "*.xml");
-
-                    if (xmlFitxategiak.Length == 0)
-                    {
-                        Console.WriteLine("⚠ Ez dago XML fitxategirik backup egiteko");
-                        return;
-                    }
-
-                    // 4️⃣ XML bakoitza BACKUP karpetara kopiatu
-                    foreach (string xmlPath in xmlFitxategiak)
-                    {
-                        string fitxIzen = Path.GetFileName(xmlPath);
-                        string helmuga = Path.Combine(backupKarpeta, fitxIzen);
-
-                        File.Copy(xmlPath, helmuga, true); // true = gainidatzi
-                        Console.WriteLine($"✅ Backup eginda: {fitxIzen}");
-                    }
-                }
+                File.Copy(fitxategia, helmuga, true); // true = gainidatzi
+                Console.WriteLine($"✅ Backup eginda: {fitxIzen}");
             }
             catch (Exception ex)
             {
@@ -186,5 +145,4 @@ namespace TicketBai
         }
     }
 }
-    
 

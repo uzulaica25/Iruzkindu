@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,17 +9,18 @@ namespace TicketBai
 {
     internal class Programa
     {
-        
             static void Main()
             {
                 int aukera;
 
                 do
                 {
-                    Console.WriteLine("===== MENU NAGUSIA =====");
+                    WriteHeader("===== MENU NAGUSIA =====");
+
                     Console.WriteLine("1. Ticketak PROZESATU");
                     Console.WriteLine("2. Estatistika ERAKUTSI");
                     Console.WriteLine("0. Irten");
+                    Console.WriteLine();
                     Console.Write("Aukeratu aukera bat: ");
 
                     try
@@ -43,95 +45,113 @@ namespace TicketBai
                             break;
 
                         case 0:
-                            Console.WriteLine("Programa amaitzen...");
+                            WriteInfo("Programa amaitzen...");
                             break;
 
                         default:
-                            Console.WriteLine("Aukera okerra.");
+                            WriteError("Aukera okerra.");
                             break;
                     }
 
                 } while (aukera != 0);
             }
+
             static void TicketakProzesatu()
             {
-                Console.WriteLine("Ticketak prozesatzen...");
+                WriteHeader("Ticketak prozesatzen...");
 
                 string karpetaNagusia = @"\\UnaxZulaika\TicketBAI\Baskulak";
 
                 if (!Directory.Exists(karpetaNagusia))
                 {
-                    Console.WriteLine("Sarrera karpeta ez da existitzen.");
+                    WriteError("Sarrera karpeta ez da existitzen.");
                     return;
                 }
 
-                // 1️⃣ Baskula-karpetak
-                string[] baskulak = Directory.GetDirectories(karpetaNagusia);
+                
+                List<Ticket> todosTicketak = new List<Ticket>();
 
                 
+                string[] baskulak = Directory.GetDirectories(karpetaNagusia);
+
+
                 foreach (string baskulaPath in baskulak)
                 {
                     string baskulaIzena = Path.GetFileName(baskulaPath);
-                    Console.WriteLine($"→ Baskula: {baskulaIzena}");
+                    WriteStep($"Baskula: {baskulaIzena}");
 
-                // 2️⃣ TXT fitxategiak baskula bakoitzean
-                string[] txtFitxategiak = Directory.GetFiles(Path.Combine(baskulaPath, "Tiketak"), "*.txt");
+                    string[] txtFitxategiak = Directory.GetFiles(Path.Combine(baskulaPath, "Tiketak"), "*.txt");
 
-
-                foreach (string txtPath in txtFitxategiak)
+                    foreach (string txtPath in txtFitxategiak)
                     {
                         List<string> lerroak = File.ReadAllLines(txtPath).ToList();
 
-                        // 3️⃣ Ticket objektuak sortu (baskula pasatuta)
-                        List<Ticket> ticketak = TicketFactory.SortuTicketak(lerroak,baskulaIzena,txtPath);
+                       
+                        List<Ticket> ticketak = TicketFactory.SortuTicketak(lerroak, baskulaIzena, txtPath);
 
                         foreach (Ticket t in ticketak)
                         {
+                            
+                          
 
-
-                        // 5️⃣ XML sortu
-                        string xmlPath = XmlGenerator.Sortu(t);
-
-
-
-                        // 6️⃣ XML balidatu
-
-
-                        string xsdFitxategia = @"C:\TicketBAI\XSD\Ticket.xsd";
-
-                        bool ondo = XmlValidator.Balidatu(xmlPath, xsdFitxategia);
-
-
-                        // 7️⃣ Email bidali
-                        EmailSender.Bidali();
-
-                            // 8️⃣ Excel log
                             ExcelLogger.Erregistratu(t.Id, DateTime.Now);
 
-                            // 9️⃣ DB-an gorde
+                            
                             Database db = new Database();
                             db.Konektatu();
                             db.GordeTicket(t);
                             db.Itxi();
 
-                            // 🔟 Backup
-                            BackupManager.Egin(xmlPath);
+                           
+                            todosTicketak.Add(t);
                         }
+
+                        
+                        WriteBlank();
+                    }
+
+                   
+                    WriteBlank();
+                }
+
+                WriteStep($"Sortu diren tiket guztiak: {todosTicketak.Count}");
+                WriteBlank();
+
+                
+                if (todosTicketak.Count > 0)
+                {
+                    string xmlPath = XmlGenerator.Sortu(todosTicketak);
+
+                    bool ondo = XmlValidator.Balidatu(xmlPath);
+
+                    if (ondo)
+                    {
+                        
+                        EmailSender.Bidali(xmlPath);
+
+                  
+                        BackupManager.Egin(xmlPath);
+                    }
+                    else
+                    {
+                        WriteWarning("XML baliogabea, ez da bidaliko/backup egingo.");
                     }
                 }
 
-                Console.WriteLine("Prozesua amaituta.\n");
+                WriteInfo("Prozesua amaituta.");
+                Console.WriteLine();
             }
 
         static void EstatistikakErakutsi()
         {
             string connString = "server=localhost;user=root;password=root;database=TicketBaiDB;";
 
-            Console.WriteLine("Aukeratu zer erakutsi:");
+            WriteHeader("Aukeratu zer erakutsi:");
             Console.WriteLine("1 - Saltzaile bakoitzaren ticket bateko salmenta handiena");
             Console.WriteLine("2 - Saltzaile bakoitzak zenbat ticket saldu dituen");
             Console.WriteLine("3 - Egun bakoitzean sortutako ticket kopurua");
             Console.WriteLine("4 - Produktu bakoitza zenbat ticket desberdinetan agertzen den");
+            Console.WriteLine();
             Console.Write("Aukera: ");
 
             string aukera = Console.ReadLine();
@@ -140,33 +160,74 @@ namespace TicketBai
             switch (aukera)
             {
                 case "1":
-                    Console.WriteLine("1. Saltzaile bakoitzaren ticket bateko salmenta handiena");
+                    WriteStep("1. Saltzaile bakoitzaren ticket bateko salmenta handiena");
                     Estatistika.SalmentaHandiena(connString);
                     break;
 
                 case "2":
-                    Console.WriteLine("2. Saltzaile bakoitzak zenbat ticket saldu dituen");
+                    WriteStep("2. Saltzaile bakoitzak zenbat ticket saldu dituen");
                     Estatistika.BakoitzakZenbat(connString);
                     break;
 
                 case "3":
-                    Console.WriteLine("3. Egun bakoitzean sortutako ticket kopurua");
+                    WriteStep("3. Egun bakoitzean sortutako ticket kopurua");
                     Estatistika.EguneanZenbat(connString);
                     break;
 
                 case "4":
-                    Console.WriteLine("4. Egunean batez besteko salmenta");
+                    WriteStep("4. Egunean batez besteko salmenta");
                     Estatistika.SalmentaMaiztasuna(connString);
                     break;
 
                 default:
-                    Console.WriteLine("Aukera okerra.");
+                    WriteError("Aukera okerra.");
                     break;
             }
 
             Console.WriteLine();
         }
 
+        
+        private static void WriteHeader(string text)
+        {
+            Console.WriteLine();
+            Console.WriteLine("==================================");
+            Console.WriteLine(text);
+            Console.WriteLine("==================================");
+        }
+
+        private static void WriteStep(string text)
+        {
+            Console.WriteLine($"• {text}");
+        }
+
+       
+
+        private static void WriteWarning(string text)
+        {
+            var prev = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"! {text}");
+            Console.ForegroundColor = prev;
+        }
+
+        private static void WriteError(string text)
+        {
+            var prev = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"✖ {text}");
+            Console.ForegroundColor = prev;
+        }
+
+        private static void WriteInfo(string text)
+        {
+            Console.WriteLine(text);
+        }
+
+        private static void WriteBlank()
+        {
+            Console.WriteLine();
+        }
     }
 }
 
