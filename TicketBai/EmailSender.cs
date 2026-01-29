@@ -8,7 +8,7 @@ namespace TicketBai
     {
         public static void Bidali(string xmlPath)
         {
-                   string xmlKarpeta = @"C:\TicketBAI\XML";
+            string xmlKarpeta = @"C:\TicketBAI\XML";
 
             string[] xmlFitxategiak = Directory.GetFiles(xmlKarpeta);
 
@@ -23,39 +23,30 @@ namespace TicketBai
             {
                 try
                 {
-                    // Email sortu
-                    MailMessage emaila = new MailMessage();
-                    emaila.From = new MailAddress("unaxzulaila@gmail.com");
-                    emaila.To.Add("unaxzulaila@gmail.com");
-                    emaila.Subject = "Ticket XML";
-                    emaila.Body = "Hemen daude saldu ditugun produktuen tiketak";
-                    emaila.Attachments.Add(new Attachment(fitxategi));
+                    MailMessage test = new MailMessage("unaxzulaila@gmail.com", "unaxzulaila@gmail.com");
+                    test.Subject = "XMl ";
+                    test.Body = "Hemen daude salmenten tiketak";
 
-                    // SMTP konfigurazioa (Gmail)
                     SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
-                    smtp.Credentials = new NetworkCredential(
-                        "unaxzulaila@gmail.com",
-                        "kgbz qzrg ayyw xihv"
-                    );
+                    smtp.Credentials = new NetworkCredential("unaxzulaila@gmail.com", "njao trwe rzbl yuoe ");
                     smtp.EnableSsl = true;
+                    smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                    smtp.UseDefaultCredentials = false;
 
-                    // Bidali emaila
-                    smtp.Send(emaila);
-
-                    Console.WriteLine($"📧 Bidalia: {Path.GetFileName(fitxategi)}");
+                    smtp.Send(test);
+                    Console.WriteLine("✅ Test mezua bidali da!");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"❌ Errorea bidaltzean {Path.GetFileName(fitxategi)}: {ex.Message}");
+                    Console.WriteLine("❌ Test mezua bidaltzean: " + ex.Message);
                 }
+
+                Console.WriteLine("✅ Prozesua amaitu da");
             }
 
-            Console.WriteLine("✅ Prozesua amaitu da");
+
         }
-
-
     }
-}
     static class ExcelLogger
     {
         private static string fitx = "bidalketak.csv";
@@ -86,4 +77,5 @@ namespace TicketBai
             }
         }
     }
+}
 

@@ -105,69 +105,83 @@ namespace TicketBai
             }
         }
 
-        // ===== BIDALKETA ERREGISTRATU =====
-        public void ErregistratuBidalketa(string ticketId)
-        {
-            if (!konektatuta)
-            {
-                Console.WriteLine("Errorea: DB ez dago konektatuta.");
-                return;
-            }
+        
+       
 
-            try
-            {
-                // Adibidez: INSERT INTO bidalketak (TicketID, Data) VALUES (...)
-                Console.WriteLine($"Bidalketa DB-n erregistratua: {ticketId}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Errorea bidalketa erregistratzean: {ex.Message}");
-            }
-        }
-
-        // ===== DB ITXI =====
+      
         public void Itxi()
         {
             if (konektatuta)
             {
-                conn.Close(); //benetako DB konektatzeko
+                conn.Close(); 
                 konektatuta = false;
                 Console.WriteLine("DB itxita.");
             }
         }
     }
     static class BackupManager
+
     {
-        private static string backupKarpeta = "Backup";
+        private static string karpetaNagusia = @"C:\TicketBAI\Baskulak";
+        private static string xmlKarpeta = @"C:\TicketBAI\XML";
+        private static string backupKarpeta = @"C:\TicketBAI\BACKUP";
 
         public static void Egin(string fitxategia)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(fitxategia) || !File.Exists(fitxategia))
+                if (!Directory.Exists(xmlKarpeta))
                 {
-                    Console.WriteLine($"Errorea: fitxategia ez da aurkitu: {fitxategia}");
+                    Console.WriteLine("❌ XML karpeta ez da existitzen");
                     return;
                 }
 
-                // Backup karpeta existitzen dela egiaztatu, ez bada sortu
+                
                 if (!Directory.Exists(backupKarpeta))
                 {
                     Directory.CreateDirectory(backupKarpeta);
                 }
 
-                // Fitxategia kopiatu
-                string fileName = Path.GetFileName(fitxategia);
-                string destPath = Path.Combine(backupKarpeta, fileName);
+                string[] baskulak = Directory.GetDirectories(karpetaNagusia);
 
-                File.Copy(fitxategia, destPath, true); // replace=true
+                foreach (string baskulaPath in baskulak)
+                {
+                    string baskulaIzena = Path.GetFileName(baskulaPath);
+                    Console.WriteLine($"→ Baskula: {baskulaIzena}");
 
-                Console.WriteLine($"Backup eginda: {destPath}");
+                 
+                    string backupBaskula = Path.Combine(backupKarpeta, baskulaIzena);
+                    if (!Directory.Exists(backupBaskula))
+                    {
+                        Directory.CreateDirectory(backupBaskula);
+                    }
+
+                    // 3️⃣ XML fitxategi guztiak lortu
+                    string[] xmlFitxategiak = Directory.GetFiles(xmlKarpeta, "*.xml");
+
+                    if (xmlFitxategiak.Length == 0)
+                    {
+                        Console.WriteLine("⚠ Ez dago XML fitxategirik backup egiteko");
+                        return;
+                    }
+
+                    // 4️⃣ XML bakoitza BACKUP karpetara kopiatu
+                    foreach (string xmlPath in xmlFitxategiak)
+                    {
+                        string fitxIzen = Path.GetFileName(xmlPath);
+                        string helmuga = Path.Combine(backupKarpeta, fitxIzen);
+
+                        File.Copy(xmlPath, helmuga, true); // true = gainidatzi
+                        Console.WriteLine($"✅ Backup eginda: {fitxIzen}");
+                    }
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Errorea backup egitean: {ex.Message}");
+                Console.WriteLine($"❌ Errorea backup egitean: {ex.Message}");
             }
         }
     }
 }
+    
+

@@ -14,11 +14,11 @@ namespace TicketBai
             string fitxategiIzena = "Ticket_Ezezaguna";
             if (t.Produktuak.Count > 0)
             {
-                // Lehenengo produktuaren izena hartzen dugu fitxategiaren izenerako
+                
                 fitxategiIzena = t.Produktuak[0].Izena;
             }
 
-            // Hemen izena aldatzen dugu
+            
             string xmlPath = Path.Combine(karpeta, $"{fitxategiIzena}.xml");
 
             try
@@ -88,7 +88,7 @@ namespace TicketBai
                     esValido = false;
                 };
 
-                // Leer el XML con validación
+              
                 using (XmlReader reader = XmlReader.Create(xmlPath, settings))
                 {
                     while (reader.Read()) { } // Recorrer todo el XML
