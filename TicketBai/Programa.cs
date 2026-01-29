@@ -57,7 +57,7 @@ namespace TicketBai
             {
                 Console.WriteLine("Ticketak prozesatzen...");
 
-                string karpetaNagusia = @"C:\TicketBAI\Baskulak";
+                string karpetaNagusia = @"\\UnaxZulaika\TicketBAI\Baskulak";
 
                 if (!Directory.Exists(karpetaNagusia))
                 {
@@ -120,30 +120,13 @@ namespace TicketBai
 
         static void EstatistikakErakutsi()
         {
-            string fitx = "bidalketak.csv";
-
-            if (!File.Exists(fitx))
-            {
-                Console.WriteLine("Ez dago bidalketa fitxategirik.");
-                return;
-            }
-
-            string[] lerroak = File.ReadAllLines(fitx);
-
-            if (lerroak.Length <= 1)
-            {
-                Console.WriteLine("Ez dago bidalketa daturik.");
-                return;
-            }
-
-            int totalTicketak = lerroak.Length - 1; // burua kenduta
-            Console.WriteLine($"Bidalketa totalak: {totalTicketak}");
-            Console.WriteLine();
+            string connString = "server=localhost;user=root;password=root;database=TicketBaiDB;";
 
             Console.WriteLine("Aukeratu zer erakutsi:");
-            Console.WriteLine("1 - Azken ticketa");
-            Console.WriteLine("2 - Azken 10 ticketak");
-            Console.WriteLine("3 - Ticket guztiak");
+            Console.WriteLine("1 - Saltzaile bakoitzaren ticket bateko salmenta handiena");
+            Console.WriteLine("2 - Saltzaile bakoitzak zenbat ticket saldu dituen");
+            Console.WriteLine("3 - Egun bakoitzean sortutako ticket kopurua");
+            Console.WriteLine("4 - Produktu bakoitza zenbat ticket desberdinetan agertzen den");
             Console.Write("Aukera: ");
 
             string aukera = Console.ReadLine();
@@ -152,28 +135,23 @@ namespace TicketBai
             switch (aukera)
             {
                 case "1":
-                    // Azken ticketa
-                    Console.WriteLine("Azken ticketa:");
-                    Console.WriteLine(lerroak[lerroak.Length - 1]);
+                    Console.WriteLine("1. Saltzaile bakoitzaren ticket bateko salmenta handiena");
+                    Estatistika.SalmentaHandiena(connString);
                     break;
 
                 case "2":
-                    // Azken 10 ticketak
-                    Console.WriteLine("Azken 10 ticketak:");
-                    int start10 = Math.Max(1, lerroak.Length - 10);
-                    for (int i = start10; i < lerroak.Length; i++)
-                    {
-                        Console.WriteLine(lerroak[i]);
-                    }
+                    Console.WriteLine("2. Saltzaile bakoitzak zenbat ticket saldu dituen");
+                    Estatistika.BakoitzakZenbat(connString);
                     break;
 
                 case "3":
-                    // Ticket guztiak
-                    Console.WriteLine("Ticket guztiak:");
-                    for (int i = 1; i < lerroak.Length; i++) // 0 = burua
-                    {
-                        Console.WriteLine(lerroak[i]);
-                    }
+                    Console.WriteLine("3. Egun bakoitzean sortutako ticket kopurua");
+                    Estatistika.EguneanZenbat(connString);
+                    break;
+
+                case "4":
+                    Console.WriteLine("4. Produktu bakoitza zenbat ticket desberdinetan agertzen den");
+                    Estatistika.ProduktuaTicketko(connString);
                     break;
 
                 default:
