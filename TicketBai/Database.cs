@@ -11,9 +11,15 @@ namespace TicketBai
 {
     class Database
     {
+        /// <summary>
+        /// Datu basearekin komunikatzeko klasea. MySQL erabiltzen du, eta Ticket objektuak gordetzeko metodoa dauka. Konektatzeko, gordetzeko eta itxi egiteko metodoak ditu.
+        /// </summary>
         private MySqlConnection conn;
         private bool konektatuta = false;
 
+        /// <summary>
+        /// Konektatu metodoak datu basearekin konektatzen saiatzen da. Konektatzean errore bat gertatzen bada, mezua kontsolan erakusten du eta konektatuta ez dagoela adierazten du. Konektatuta badago, mezua erakusten du.
+        /// </summary>
         public void Konektatu()
         {
             string connString = "server=localhost;user=root;password=root;database=TicketBaiDB;";
@@ -32,6 +38,11 @@ namespace TicketBai
             }
         }
 
+
+        /// <summary>
+        /// GordeTicket metodoak Ticket objektua datu basean gordetzen saiatzen da. Lehenik eta behin, Saltzailea taulan saltzailea gordetzen du (INSERT IGNORE erabiliz, beraz, existitzen bada ez du errore bat emango). Ondoren, Produktua taulan produktuak gordetzen ditu. Azkenik, Ticket taulan ticket-a gordetzen du, saltzailearen ID eta produktuen ID-rekin lotuta. Erroreak gertatzen badira, mezua kontsolan erakusten du. Arrakastaz gordetzen bada, ticket ID-a eta mezua erakusten du.
+        /// </summary>
+        /// <param name="t">The t.</param>
         public void GordeTicket(Ticket t)
         {
             if (!konektatuta)
@@ -73,8 +84,8 @@ namespace TicketBai
 
                
                 string sql3 = @"INSERT INTO Ticket
-                (TicketOrdua, TicketEguna, PrezioOsoa, idSaltzailea)
-                VALUES (@ordua, @eguna, @prezioOsoa, @idSaltzailea)";
+                (TicketOrdua, TicketEguna, PrezioOsoa, idSaltzailea,idProduktua)
+                VALUES (@ordua, @eguna, @prezioOsoa, @idSaltzailea,@idProduktua)";
 
                 using (MySqlCommand cmd3 = new MySqlCommand(sql3, conn))
                 {
@@ -82,6 +93,7 @@ namespace TicketBai
                     cmd3.Parameters.AddWithValue("@eguna", t.Eguna);
                     cmd3.Parameters.AddWithValue("@prezioOsoa", t.PrezioOsoa);
                     cmd3.Parameters.AddWithValue("@idSaltzailea", t.Saltzailea.Id);
+                    cmd3.Parameters.AddWithValue("@idProduktua", t.Id);
 
                     cmd3.ExecuteNonQuery();
 
@@ -99,6 +111,9 @@ namespace TicketBai
             }
         }
 
+        /// <summary>
+        /// Datu basearekin komunikazioa amaitzeko metodoa. Konektatuta badago, datu baseko konexioa itxi egiten du eta konektatuta ez dagoela adierazten du. Mezua kontsolan erakusten du. Konektatuta ez badago, ez du ezer egiten.
+        /// </summary>
         public void Itxi()
         {
             if (konektatuta)
@@ -110,6 +125,9 @@ namespace TicketBai
         }
     }
 
+    /// <summary>
+    /// BackupManager klasea datu baseko backup-ak egiteko arduratzen da. Egin metodo bakarra dauka, eta fitxategi baten path-a jasotzen du. Fitxategia existitzen bada, backup karpetan kopiatu egiten du. Backup karpeta ez badago, sortzen du. Erroreak gertatzen badira, mezua kontsolan erakusten du. Arrakastaz backup eginda bada, fitxategi izena eta mezua erakusten du.
+    /// </summary>
     static class BackupManager
 
     {
@@ -117,6 +135,10 @@ namespace TicketBai
         private static string xmlKarpeta = @"C:\TicketBAI\XML";
         private static string backupKarpeta = @"C:\TicketBAI\BACKUP";
 
+        /// <summary>
+        /// Fitxategi baten path-a jasotzen du eta backup-ak egiteko arduratzen da. Fitxategia existitzen bada, backup karpetan kopiatu egiten du. Backup karpeta ez badago, sortzen du. Erroreak gertatzen badira, mezua kontsolan erakusten du. Arrakastaz backup eginda bada, fitxategi izena eta mezua erakusten du.
+        /// </summary>
+        /// <param name="fitxategia">The fitxategia.</param>
         public static void Egin(string fitxategia)
         {
             try

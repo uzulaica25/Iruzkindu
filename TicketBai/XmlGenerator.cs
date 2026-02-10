@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using TicketBai;
 namespace TicketBai
 {
+    /// <summary>
+    /// XmlGenerator klasea Ticket objektuak XML formatuan sortzeko eta gordetzeko arduratzen da. Bi metodo nagusi ditu: Sortu(Ticket t) metodoak single ticket bat XML fitxategi batean sortzen du, eta Sortu(IEnumerable<Ticket> ticketak) metodoak ticketen zerrenda bat XML fitxategi batean sortzen du. Bi metodoek XML fitxategiak "C:\TicketBAI\XML" karpetan gordetzen dituzte, eta erroreak kudeatzen dituzte. Gainera, EscapeXml metodoa erabiltzen da XML edukia behar bezala escapatzeko.
+    /// </summary>
     static class XmlGenerator
     {
         
@@ -98,7 +101,7 @@ namespace TicketBai
             }
         }
 
-        // Escapa contenido para XML
+    
         private static string EscapeXml(string s)
         {
             if (string.IsNullOrEmpty(s)) return string.Empty;
@@ -106,6 +109,10 @@ namespace TicketBai
         }
     }
 
+
+    /// <summary>
+    /// Xml Validator klasea XML fitxategiak balidatzeko arduratzen da. Balidatu metodo bakarra dauka, eta XML fitxategi baten path-a jasotzen du. Fitxategia existitzen den, hutsik ez dagoen, eta oinarrizko egitura (Tickets eta Ticket elementuak) daukan egiaztatzen du. Erroreak gertatzen badira, mezua kontsolan erakusten du. Arrakastaz balidatua bada, mezua erakusten du.
+    /// </summary>
     static class XmlValidator
     {
         public static bool Balidatu(string xmlPath)

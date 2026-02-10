@@ -9,7 +9,12 @@ namespace TicketBai
 {
     internal class Programa
     {
-            static void Main()
+
+
+        /// <summary>
+        /// Aplikazioaren sarrera puntua. Menu nagusia erakusten du eta erabiltzailearen aukerak kudeatzen ditu.
+        /// </summary>
+        static void Main()
             {
                 int aukera;
 
@@ -56,7 +61,10 @@ namespace TicketBai
                 } while (aukera != 0);
             }
 
-            static void TicketakProzesatu()
+        /// <summary>
+        /// Ticketak prozesatzeko logika nagusia. Karpeta nagusian dauden baskuletako txt fitxategiak irakurtzen ditu, ticket objektuak sortzen ditu, datu basean gordetzen ditu, eta azkenik XML-a sortu eta bidaltzen du.
+        /// </summary>
+        static void TicketakProzesatu()
             {
                 WriteHeader("Ticketak prozesatzen...");
 
@@ -88,7 +96,7 @@ namespace TicketBai
 
                        
                         List<Ticket> ticketak = TicketFactory.SortuTicketak(lerroak, baskulaIzena, txtPath);
-
+                 
                         foreach (Ticket t in ticketak)
                         {
                             
@@ -113,7 +121,7 @@ namespace TicketBai
                    
                     WriteBlank();
                 }
-
+                
                 WriteStep($"Sortu diren tiket guztiak: {todosTicketak.Count}");
                 WriteBlank();
 
@@ -142,6 +150,9 @@ namespace TicketBai
                 Console.WriteLine();
             }
 
+        /// <summary>
+        /// Estatistikak erakusteko menu bat. Erabiltzaileak aukeratu dezake zein estatistika mota ikusi nahi duen, eta horren arabera Estatistika klaseko metodo desberdinak deitzen ditu.
+        /// </summary>
         static void EstatistikakErakutsi()
         {
             string connString = "server=localhost;user=root;password=root;database=TicketBaiDB;";

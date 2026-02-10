@@ -8,7 +8,10 @@ namespace TicketBai
 {
     static class EmailSender
     {
-        
+        /// <summary>
+        /// Bidali email bat Outlook erabiliz, XML fitxategia atxikitzen duena
+        /// </summary>
+        /// <param name="xmlPath"></param>
         public static void Bidali(string xmlPath)
         {
             try
@@ -45,7 +48,9 @@ namespace TicketBai
 
 
 
-
+    /// <summary>
+    /// ExcelLogger klasea CSV formatuan log-ak gordetzeko arduratzen da. Erregistratu metodoa dauka, eta ticket ID-a eta data jasotzen ditu. Fitxategi bat sortzen du (edo existitzen bada, irekita uzten du) "bidalketak.csv" izenarekin, eta bertan ID-a eta data gordetzen ditu. Fitxategia sortu berria bada, lehen lerroan "TicketID,Data" idazten du. Erroreak gertatzen badira, mezua kontsolan erakusten du. Arrakastaz erregistratua bada, mezua erakusten du.
+    /// </summary>
     static class ExcelLogger
     {
         private static string fitx = "bidalketak.csv";

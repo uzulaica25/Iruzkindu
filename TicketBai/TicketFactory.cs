@@ -3,11 +3,19 @@ using System.Collections.Generic;
 using System.IO;
 using TicketBai;
 
+
 static class TicketFactory
 {
     
     private static int nextId = 1;
 
+    /// <summary>
+    /// Ticketak sortzeko metodoa. Lerroak, baskula eta txt fitxategiaren bidea jasotzen ditu. Lerro bakoitza prozesatzen du, produktua, saltzailea, prezioa eta pisua ateratzen ditu, eta Ticket objektuak sortzen ditu. Ticket bakoitzari baskula esleitzen dio, eta sortutako ticket guztiak itzultzen ditu. Prozesatzeko lerroak formatu okerrean badaude, mezua kontsolan erakusten du eta lerroa saltatzen du. Arrakastaz sortutako ticket bakoitza kontsolan erakusten du.
+    /// </summary>
+    /// <param name="lerroak">The lerroak.</param>
+    /// <param name="baskula">The baskula.</param>
+    /// <param name="txtPath">The text path.</param>
+    /// <returns></returns>
     public static List<Ticket> SortuTicketak(List<string> lerroak, string baskula, string txtPath)
     {
         List<Ticket> ticketak = new List<Ticket>();

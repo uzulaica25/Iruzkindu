@@ -11,6 +11,10 @@ namespace TicketBai
 {
     internal class Estatistika
     {
+        /// <summary>
+        /// Saltzaile bakoitzaren salmenta handiena kalkulatzen du eta kontsolan erakusten du. SQL kontsulta bat exekutatzen du, non Ticket taula eta Saltzailea taula JOIN egiten diren, eta MAX funtzioa erabiltzen da prezio osoaren balio handiena lortzeko. Taldekatze bat egiten da saltzaile izenaren arabera, eta emaitzak kontsolan inprimatzen dira.
+        /// </summary>
+        /// <param name="connString">The connection string.</param>
         public static void SalmentaHandiena(string connString)
         {
             string query = @"
@@ -31,6 +35,10 @@ namespace TicketBai
             }
         }
 
+        /// <summary>
+        /// BakoitzakZenbat metodoak saltzaile bakoitzak zenbat ticket saldu dituen kalkulatzen du eta kontsolan erakusten du. SQL kontsulta bat exekutatzen du, non Ticket taula eta Saltzailea taula JOIN egiten diren, eta COUNT funtzioa erabiltzen da ticket kopurua lortzeko. Taldekatze bat egiten da saltzaile izenaren arabera, eta emaitzak kontsolan inprimatzen dira.
+        /// </summary>
+        /// <param name="connString">The connection string.</param>
         public static void BakoitzakZenbat(string connString)
         {
             string query = @"
@@ -51,6 +59,10 @@ namespace TicketBai
             }
         }
 
+        /// <summary>
+        /// Egun bakoitzean sortutako ticket kopurua kalkulatzen du eta kontsolan erakusten du. SQL kontsulta bat exekutatzen du, non Ticket taula erabiltzen den, eta COUNT funtzioa erabiltzen da ticket kopurua lortzeko. Taldekatze bat egiten da ticket eguna (data) arabera, eta emaitzak kontsolan inprimatzen dira.
+        /// </summary>
+        /// <param name="connString">The connection string.</param>
         public static void EguneanZenbat(string connString)
         {
             string query = @"
@@ -71,7 +83,10 @@ namespace TicketBai
             }
         }
 
-
+        /// <summary>
+        /// SalmentaMaiztasuna metodoak egun bakoitzean sortutako ticket-aren batez besteko salmenta kalkulatzen du eta kontsolan erakusten du. SQL kontsulta bat exekutatzen du, non Ticket taula erabiltzen den, eta AVG funtzioa erabiltzen da prezio osoaren batez bestekoa lortzeko. Taldekatze bat egiten da ticket eguna (data) arabera, eta emaitzak kontsolan inprimatzen dira.
+        /// </summary>
+        /// <param name="connString">The connection string.</param>
         public static void SalmentaMaiztasuna(string connString)
         {
             string query = @"
