@@ -1,0 +1,60 @@
+### YamlMime:XRefMap
+sorted: true
+references:
+- uid: TicketBai
+  name: TicketBai
+  href: api/TicketBai.html
+  commentId: N:TicketBai
+  fullName: TicketBai
+  nameWithType: TicketBai
+- uid: TicketBai.Saltzailea
+  name: Saltzailea
+  href: api/TicketBai.Saltzailea.html
+  commentId: T:TicketBai.Saltzailea
+  fullName: TicketBai.Saltzailea
+  nameWithType: Saltzailea
+- uid: TicketBai.Saltzailea.#ctor(System.Int32,System.String)
+  name: Saltzailea(int, string)
+  href: api/TicketBai.Saltzailea.html#TicketBai_Saltzailea__ctor_System_Int32_System_String_
+  commentId: M:TicketBai.Saltzailea.#ctor(System.Int32,System.String)
+  name.vb: New(Integer, String)
+  fullName: TicketBai.Saltzailea.Saltzailea(int, string)
+  fullName.vb: TicketBai.Saltzailea.New(Integer, String)
+  nameWithType: Saltzailea.Saltzailea(int, string)
+  nameWithType.vb: Saltzailea.New(Integer, String)
+- uid: TicketBai.Saltzailea.#ctor*
+  name: Saltzailea
+  href: api/TicketBai.Saltzailea.html#TicketBai_Saltzailea__ctor_
+  commentId: Overload:TicketBai.Saltzailea.#ctor
+  isSpec: "True"
+  name.vb: New
+  fullName: TicketBai.Saltzailea.Saltzailea
+  fullName.vb: TicketBai.Saltzailea.New
+  nameWithType: Saltzailea.Saltzailea
+  nameWithType.vb: Saltzailea.New
+- uid: TicketBai.Saltzailea.Id
+  name: Id
+  href: api/TicketBai.Saltzailea.html#TicketBai_Saltzailea_Id
+  commentId: P:TicketBai.Saltzailea.Id
+  fullName: TicketBai.Saltzailea.Id
+  nameWithType: Saltzailea.Id
+- uid: TicketBai.Saltzailea.Id*
+  name: Id
+  href: api/TicketBai.Saltzailea.html#TicketBai_Saltzailea_Id_
+  commentId: Overload:TicketBai.Saltzailea.Id
+  isSpec: "True"
+  fullName: TicketBai.Saltzailea.Id
+  nameWithType: Saltzailea.Id
+- uid: TicketBai.Saltzailea.Izena
+  name: Izena
+  href: api/TicketBai.Saltzailea.html#TicketBai_Saltzailea_Izena
+  commentId: P:TicketBai.Saltzailea.Izena
+  fullName: TicketBai.Saltzailea.Izena
+  nameWithType: Saltzailea.Izena
+- uid: TicketBai.Saltzailea.Izena*
+  name: Izena
+  href: api/TicketBai.Saltzailea.html#TicketBai_Saltzailea_Izena_
+  commentId: Overload:TicketBai.Saltzailea.Izena
+  isSpec: "True"
+  fullName: TicketBai.Saltzailea.Izena
+  nameWithType: Saltzailea.Izena
