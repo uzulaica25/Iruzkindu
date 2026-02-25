@@ -1,0 +1,27 @@
+{
+  "api/TicketBai.Saltzailea.html": {
+    "href": "api/TicketBai.Saltzailea.html",
+    "title": "Class Saltzailea | Ticket",
+    "summary": "Class Saltzailea Namespace TicketBai Assembly TicketBai.dll Saltzailea klasea, saltzailearen ID-a eta izena gordetzeko erabiltzen da. Konstruktorea ID-a eta izena jasotzen du, eta propietateak ID eta izena gordetzeko erabiltzen dira. Saltzailea taulan saltzaileak gordetzeko erabiltzen da, eta Ticket objektuak saltzailearekin lotzeko erabiltzen da. public class Saltzailea Inheritance object Saltzailea Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Constructors Saltzailea(int, string) public Saltzailea(int id, string izena) Parameters id int izena string Properties Id public int Id { get; set; } Property Value int Izena public string Izena { get; set; } Property Value string"
+  },
+  "api/TicketBai.html": {
+    "href": "api/TicketBai.html",
+    "title": "Namespace TicketBai | Ticket",
+    "summary": "Namespace TicketBai Classes Saltzailea Saltzailea klasea, saltzailearen ID-a eta izena gordetzeko erabiltzen da. Konstruktorea ID-a eta izena jasotzen du, eta propietateak ID eta izena gordetzeko erabiltzen dira. Saltzailea taulan saltzaileak gordetzeko erabiltzen da, eta Ticket objektuak saltzailearekin lotzeko erabiltzen da."
+  },
+  "docs/getting-started.html": {
+    "href": "docs/getting-started.html",
+    "title": "Getting Started | Ticket",
+    "summary": "Getting Started"
+  },
+  "docs/introduction.html": {
+    "href": "docs/introduction.html",
+    "title": "Introduction | Ticket",
+    "summary": "Introduction"
+  },
+  "index.html": {
+    "href": "index.html",
+    "title": "This is the HOMEPAGE. | Ticket",
+    "summary": "This is the HOMEPAGE. Refer to Markdown for how to write markdown files. Quick Start Notes: Add images to the images folder if the file is referencing an image."
+  }
+}
